@@ -139,15 +139,20 @@ class Trader:
         self.conversions = 0
         self.traderData = "SAMPLE"
 
-        # Resin stuff
+        # Resin
         self.resin_buy_orders = 0
         self.resin_sell_orders = 0
         self.resin_position = 0
 
-        # other
-        self.sf_buy_orders = 0
-        self.sf_sell_orders = 0
-        self.sf_position = 0
+        # Kelp
+        self.kelp_position = 0
+        self.kelp_buy_orders = 0
+        self.kelp_sell_orders = 0
+
+        # squid
+        self.squid_ink_position = 0
+        self.squid_ink_buy_orders = 0
+        self.squid_ink_sell_orders = 0
 
     # define easier sell and buy order functions
     def send_sell_order(self, product, price, amount, msg=None):
@@ -166,17 +171,27 @@ class Trader:
         logger.print("traderData: " + state.traderData)
         logger.print("Observations: " + str(state.observations))        
 
-    # Buys things if there are asks below or equal acceptable price
+    # TODO: UPDATE WHENEVER YOU ADD A NEW PRODUCT
+    def get_product_pos(self, state, product):
+        if product == 'RAINFOREST_RESIN':
+            pos = state.position.get('RAINFOREST_RESIN', 0)
+        elif product == 'KELP':
+            pos = state.position.get('KELP', 0)
+        elif product == 'SQUID_INK':
+            pos = state.position.get('SQUID_INK', 0)
+        else:
+            raise ValueError(f"Unknown product: {product}")
+
+        return pos
+                
     def search_buys(self, state, product, acceptable_price, depth=1):
+        # Buys things if there are asks below or equal acceptable price
         order_depth = state.order_depths[product]
         if len(order_depth.sell_orders) != 0:
             orders = list(order_depth.sell_orders.items())
             for ask, amount in orders[0:max(len(orders), depth)]: 
 
-                # get position
-                if product == 'RAINFOREST_RESIN':
-                    pos = self.resin_position
-                    
+                pos = self.get_product_pos(state, product)                    
                 if int(ask) < acceptable_price or (abs(ask - acceptable_price) < 1 and (pos < 0 and abs(pos - amount) < abs(pos))):
                     if product == 'RAINFOREST_RESIN':
                         size = min(50-self.resin_position-self.resin_buy_orders, -amount)
@@ -184,22 +199,37 @@ class Trader:
                         self.resin_buy_orders += size 
                         self.send_buy_order(product, ask, size, msg=f"TRADE BUY {str(size)} x @ {ask}")
 
-
+                    elif product == 'KELP':
+                        size = min(50-self.kelp_position-self.kelp_buy_orders, -amount)
+                        self.kelp_buy_orders += size 
+                        self.send_buy_order(product, ask, size, msg=f"TRADE BUY {str(size)} x @ {ask}")
+                    
+                    elif product == 'SQUID_INK':
+                        size = min(50-self.squid_ink_position-self.squid_ink_buy_orders, -amount)
+                        self.squid_ink_buy_orders += size 
+                        self.send_buy_order(product, ask, size, msg=f"TRADE BUY {str(size)} x @ {ask}")
+                    
     def search_sells(self, state, product, acceptable_price, depth=1):   
         order_depth = state.order_depths[product]
         if len(order_depth.buy_orders) != 0:
             orders = list(order_depth.buy_orders.items())
             for bid, amount in orders[0:max(len(orders), depth)]: 
                 
-                # get pos
-                if product == 'RAINFOREST_RESIN':
-                    pos = self.resin_position
-
+                pos = self.get_product_pos(state, product)   
                 if int(bid) > acceptable_price or (abs(bid-acceptable_price) < 1 and (pos > 0 and abs(pos - amount) < abs(pos))):
-
                     if product == 'RAINFOREST_RESIN':
                         size = min(self.resin_position + 50 - self.resin_sell_orders, amount)
                         self.resin_sell_orders += size
+                        self.send_sell_order(product, bid, -size, msg=f"TRADE SELL {str(-size)} x @ {bid}")
+
+                    elif product == 'KELP':
+                        size = min(self.kelp_position + 50 - self.kelp_sell_orders, amount)
+                        self.kelp_sell_orders += size
+                        self.send_sell_order(product, bid, -size, msg=f"TRADE SELL {str(-size)} x @ {bid}")
+                    
+                    elif product == 'SQUID_INK':
+                        size = min(self.squid_ink_position + 50 - self.squid_ink_sell_orders, amount)
+                        self.squid_ink_sell_orders += size
                         self.send_sell_order(product, bid, -size, msg=f"TRADE SELL {str(-size)} x @ {bid}")
 
     def get_bid(self, state, product, price):        
@@ -246,8 +276,7 @@ class Trader:
             
         return None        
 
-    def make_resin_market(self, state):
-
+    def trade_resin(self, state):
         # Buy anything at a good price
         self.search_buys(state, 'RAINFOREST_RESIN', 10000, depth=3)
         self.search_sells(state, 'RAINFOREST_RESIN', 10000, depth=3)
@@ -274,20 +303,130 @@ class Trader:
         self.send_sell_order('RAINFOREST_RESIN', sell_price, -max_sell, msg=f"RAINFOREST_RESIN: MARKET MADE Sell {max_sell} @ {sell_price}")
         self.send_buy_order('RAINFOREST_RESIN', buy_price, max_buy, msg=f"RAINFOREST_RESIN: MARKET MADE Buy {max_buy} @ {buy_price}")
 
+    def trade_kelp(self, state):
+        # position limits
+        low = -50
+        high = 50
 
+        position = state.position.get("KELP", 0)
 
-    def run(self, state: TradingState):        
+        max_buy = high - position
+        max_sell = position - low
+
+        order_book = state.order_depths['KELP']
+        sell_orders = order_book.sell_orders
+        buy_orders = order_book.buy_orders
+
+        if len(sell_orders) != 0 and len(buy_orders) != 0:
+            ask, _ = list(sell_orders.items())[-1] # worst ask
+            bid, _ = list(buy_orders.items())[-1]  # worst bid
+            
+            fair_price = int(math.ceil((ask + bid) / 2))  # try changing this to floor maybe
+
+            decimal_fair_price = (ask + bid) / 2
+
+            logger.print(f"KELP FAIR PRICE: {decimal_fair_price}")
+            self.search_buys(state, 'KELP', decimal_fair_price, depth=3)
+            self.search_sells(state, 'KELP', decimal_fair_price, depth=3)
+
+            # Check if there's another market maker
+            best_ask = self.get_ask(state, 'KELP', fair_price)
+            best_bid =  self.get_bid(state, 'KELP', fair_price)
+
+            # our ordinary market
+            buy_price = math.floor(decimal_fair_price) - 2
+            sell_price = math.ceil(decimal_fair_price) + 2
+        
+            # update market if someone else is better than us
+            if best_ask is not None and best_bid is not None:
+                ask = best_ask
+                bid = best_bid
+                
+                sell_price = ask - 1
+                buy_price = bid + 1
+
+            max_buy =  50 - self.kelp_position - self.kelp_buy_orders # MAXIMUM SIZE OF MARKET ON BUY SIDE
+            max_sell = self.kelp_position + 50 - self.kelp_sell_orders # MAXIMUM SIZE OF MARKET ON SELL SIDE
+
+            self.send_buy_order('KELP', buy_price, max_buy, msg=f"KELP: MARKET MADE Buy {max_buy} @ {buy_price}")
+            self.send_sell_order('KELP', sell_price, -max_sell, msg=f"KELP: MARKET MADE Sell {max_sell} @ {sell_price}")
+
+    def trade_squid_ink(self, state):
+        # this is the same logic as kelp!
+        # position limits
+        low = -50
+        high = 50
+
+        position = state.position.get("SQUID_INK", 0)
+
+        max_buy = high - position
+        max_sell = position - low
+
+        order_book = state.order_depths['SQUID_INK']
+        sell_orders = order_book.sell_orders
+        buy_orders = order_book.buy_orders
+
+        if len(sell_orders) != 0 and len(buy_orders) != 0:
+            ask, _ = list(sell_orders.items())[-1] # worst ask
+            bid, _ = list(buy_orders.items())[-1]  # worst bid
+            
+            fair_price = int(math.ceil((ask + bid) / 2))  # try changing this to floor maybe
+
+            decimal_fair_price = (ask + bid) / 2
+
+            logger.print(f"SQUID_INK FAIR PRICE: {decimal_fair_price}")
+            self.search_buys(state, 'SQUID_INK', decimal_fair_price, depth=3)
+            self.search_sells(state, 'SQUID_INK', decimal_fair_price, depth=3)
+
+            # Check if there's another market maker
+            best_ask = self.get_ask(state, 'SQUID_INK', fair_price)
+            best_bid =  self.get_bid(state, 'SQUID_INK', fair_price)
+
+            # our ordinary market
+            buy_price = math.floor(decimal_fair_price) - 2
+            sell_price = math.ceil(decimal_fair_price) + 2
+        
+            # update market if someone else is better than us
+            if best_ask is not None and best_bid is not None:
+                ask = best_ask
+                bid = best_bid
+                
+                sell_price = ask - 1
+                buy_price = bid + 1
+
+            max_buy =  50 - self.squid_ink_position - self.squid_ink_buy_orders # MAXIMUM SIZE OF MARKET ON BUY SIDE
+            max_sell = self.squid_ink_position + 50 - self.squid_ink_sell_orders # MAXIMUM SIZE OF MARKET ON SELL SIDE
+
+            self.send_buy_order('SQUID_INK', buy_price, max_buy, msg=f"SQUID_INK: MARKET MADE Buy {max_buy} @ {buy_price}")
+            self.send_sell_order('SQUID_INK', sell_price, -max_sell, msg=f"SQUID_INK: MARKET MADE Sell {max_sell} @ {sell_price}")
+
+    # TODO: UPDATE WHENEVER YOU ADD A NEW PRODUCT
+    def reset_orders(self, state):
         self.orders = {}
         self.conversions = 0
 
-        self.resin_position = state.position.get('RAINFOREST_RESIN', 0)
+        # reset order counts and positions
+        self.resin_position = self.get_product_pos(state, 'RAINFOREST_RESIN')
         self.resin_buy_orders = 0
         self.resin_sell_orders = 0
+
+        self.kelp_position = self.get_product_pos(state, 'KELP')
+        self.kelp_buy_orders = 0
+        self.kelp_sell_orders = 0
+
+        self.squid_ink_position = self.get_product_pos(state, 'SQUID_INK')
+        self.squid_ink_buy_orders = 0
+        self.squid_ink_sell_orders = 0
 
         for product in state.order_depths:
             self.orders[product] = []
 
-        self.make_resin_market(state)
+    def run(self, state: TradingState):        
+        self.reset_orders(state)
+
+        self.trade_resin(state)
+        self.trade_kelp(state)
+        self.trade_squid_ink(state)
 
         logger.flush(state, self.orders, self.conversions, self.traderData)
         return self.orders, self.conversions, self.traderData
