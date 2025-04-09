@@ -156,8 +156,8 @@ class Trader:
         self.squid_ink_prices = []
         self.squid_ink_ema_short = None
         self.squid_ink_ema_long = None
-        self.ema_short_window = 5
-        self.ema_long_window = 15
+        self.ema_short_window = 600
+        self.ema_long_window = 1400
         self.squid_ink_mid_prices = []
 
 

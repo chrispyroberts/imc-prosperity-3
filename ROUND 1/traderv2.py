@@ -168,7 +168,7 @@ class Trader:
             logger.print(msg)
 
     def send_buy_order(self, product, price, amount, msg=None):
-        self.orders[product].append(Order(product, price, amount))
+        self.orders[product].append(Order(product, int(price), amount))
 
         if msg is not None:
             logger.print(msg)
@@ -427,14 +427,14 @@ class Trader:
                     remaining_buy = min(position_delta, max_position - position - self.squid_ink_buy_orders)
                     if remaining_buy > 0:
                         self.squid_ink_buy_orders += remaining_buy
-                        self.send_buy_order('SQUID_INK', buy_price, remaining_buy, 
+                        self.send_buy_order('SQUID_INK', int(buy_price), remaining_buy, 
                                         msg=f"SQUID_INK: TREND BUY {remaining_buy} @ {buy_price}")
                 
                 elif position_delta < 0:  
                     remaining_sell = min(abs(position_delta), position + max_position - self.squid_ink_sell_orders)
                     if remaining_sell > 0:
                         self.squid_ink_sell_orders += remaining_sell
-                        self.send_sell_order('SQUID_INK', sell_price, -remaining_sell, 
+                        self.send_sell_order('SQUID_INK', int(sell_price), -remaining_sell, 
                                         msg=f"SQUID_INK: TREND SELL {remaining_sell} @ {sell_price}")
                 
                 # Rreduce extreme positions if trend weakens
@@ -444,7 +444,7 @@ class Trader:
                         risk_reduce = min(position - 20, position + max_position - self.squid_ink_sell_orders)
                         if risk_reduce > 0:
                             self.squid_ink_sell_orders += risk_reduce
-                            self.send_sell_order('SQUID_INK', best_bid, -risk_reduce, 
+                            self.send_sell_order('SQUID_INK', int(best_bid), -risk_reduce, 
                                             msg=f"SQUID_INK: RISK-REDUCE SELL {risk_reduce} @ {best_bid}")
                     
                     elif position < -20 and self.squid_ink_buy_orders < 10:
@@ -452,22 +452,20 @@ class Trader:
                         risk_reduce = min(abs(position) - 20, max_position - position - self.squid_ink_buy_orders)
                         if risk_reduce > 0:
                             self.squid_ink_buy_orders += risk_reduce
-                            self.send_buy_order('SQUID_INK', best_ask, risk_reduce, 
+                            self.send_buy_order('SQUID_INK', int(best_ask), risk_reduce, 
                                             msg=f"SQUID_INK: RISK-REDUCE BUY {risk_reduce} @ {best_ask}")
                 
                 # finally market make
                 remaining_buy = max_position - position - self.squid_ink_buy_orders
                 remaining_sell = position + max_position - self.squid_ink_sell_orders
                 
-                if remaining_buy > 10:
-                    passive_buy_price = max(best_bid - spread, self.squid_ink_ema_long * 0.98)
-                    self.send_buy_order('SQUID_INK', passive_buy_price, remaining_buy, 
-                                    msg=f"SQUID_INK: PASSIVE BUY {remaining_buy} @ {passive_buy_price}")
-                
-                if remaining_sell > 10:
-                    passive_sell_price = min(best_ask + spread, self.squid_ink_ema_long * 1.02)
-                    self.send_sell_order('SQUID_INK', passive_sell_price, -remaining_sell, 
-                                    msg=f"SQUID_INK: PASSIVE SELL {remaining_sell} @ {passive_sell_price}")
+                passive_buy_price = max(best_bid - spread, self.squid_ink_ema_long * 0.98)
+                self.send_buy_order('SQUID_INK', int(passive_buy_price), remaining_buy, 
+                                msg=f"SQUID_INK: PASSIVE BUY {remaining_buy} @ {passive_buy_price}")
+            
+                passive_sell_price = min(best_ask + spread, self.squid_ink_ema_long * 1.02)
+                self.send_sell_order('SQUID_INK', int(passive_sell_price), -remaining_sell, 
+                                msg=f"SQUID_INK: PASSIVE SELL {remaining_sell} @ {passive_sell_price}")
             
             else:
                 # only market make
@@ -479,9 +477,9 @@ class Trader:
                 max_buy = 50 - position - self.squid_ink_buy_orders
                 max_sell = position + 50 - self.squid_ink_sell_orders
                 
-                self.send_buy_order('SQUID_INK', buy_price, max_buy, 
+                self.send_buy_order('SQUID_INK', int(buy_price), max_buy, 
                                 msg=f"SQUID_INK: INIT BUY {max_buy} @ {buy_price}")
-                self.send_sell_order('SQUID_INK', sell_price, -max_sell, 
+                self.send_sell_order('SQUID_INK', int(sell_price), -max_sell, 
                                 msg=f"SQUID_INK: INIT SELL {max_sell} @ {sell_price}")
         else:
             logger.print("SQUID_INK: Insufficient market data")
