@@ -155,9 +155,8 @@ class Trader:
         self.squid_ink_sell_orders = 0
         self.squid_ink_short_window_prices = []
         self.squid_ink_long_window_prices = []
-        self.squid_ink_short_window = 10
-        self.squid_ink_long_window = 20
-
+        self.squid_ink_short_window = 20
+        self.squid_ink_long_window = 340
 
     # define easier sell and buy order functions
     def send_sell_order(self, product, price, amount, msg=None):
@@ -356,7 +355,7 @@ class Trader:
             self.send_buy_order('KELP', buy_price, max_buy, msg=f"KELP: MARKET MADE Buy {max_buy} @ {buy_price}")
             self.send_sell_order('KELP', sell_price, -max_sell, msg=f"KELP: MARKET MADE Sell {max_sell} @ {sell_price}")
 
-    def make_squid_market(self, state, sell_side=True, buy_side=True):
+    def make_squid_market(self, state, sell_side=True, buy_side=True, take_buys=True, take_sells=True):
         # this is the same logic as kelp!
         # position limits
         low = -50
@@ -434,6 +433,7 @@ class Trader:
 
             sell_side = True
             buy_side = True
+
             # check if we have enough data
             if len(self.squid_ink_long_window_prices) == self.squid_ink_long_window:
                 short_mean = np.mean(self.squid_ink_short_window_prices)
@@ -442,12 +442,23 @@ class Trader:
                 if long_mean < short_mean:
                     # market is up trending
                     buy_side = False
+                    logger.print("SQUID_INK: UP TRENDING, BUY SIDE OFF")
+
                 elif long_mean > short_mean:
                     # market is down trending
                     sell_side = False
+                    logger.print("SQUID_INK: DOWN TRENDING, SELL SIDE OFF")
+            
+            size = self.get_product_pos(state, 'SQUID_INK')
+            squid_pos_size = abs(size/50)
+
+            if squid_pos_size > 0.8:
+                # we are are near our position limit just make both market sides
+                buy_side = True
+                sell_side = True
+                logger.print("SQUID_INK: NEAR POSITION LIMIT, BOTH SIDES ON")
             
             self.make_squid_market(state, sell_side=sell_side, buy_side=buy_side)
-
 
 
     # TODO: UPDATE WHENEVER YOU ADD A NEW PRODUCT
