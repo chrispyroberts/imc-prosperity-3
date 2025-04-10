@@ -153,11 +153,20 @@ class Trader:
         self.squid_ink_position = 0
         self.squid_ink_buy_orders = 0
         self.squid_ink_sell_orders = 0
+
+        # windows
         self.squid_ink_short_window_prices = []
         self.squid_ink_long_window_prices = []
-        self.squid_ink_short_window = 10
-        self.squid_ink_long_window = 20
+        self.volatility_window_price_diffs = []
 
+        self.prev_price = None
+        self.prev_vol = None
+
+        # squid hyperparams
+        self.volatility_threshold = 2
+        self.volatility_window = 50
+        self.squid_ink_short_window = 50
+        self.squid_ink_long_window = 250
 
     # define easier sell and buy order functions
     def send_sell_order(self, product, price, amount, msg=None):
@@ -346,17 +355,25 @@ class Trader:
             if best_ask is not None and best_bid is not None:
                 ask = best_ask
                 bid = best_bid
-                
-                sell_price = ask - 1
-                buy_price = bid + 1
+
+                if ask - 1 > decimal_fair_price:
+                    sell_price = ask - 1
+                if bid + 1 < decimal_fair_price:
+                    buy_price = bid + 1
 
             max_buy =  50 - self.kelp_position - self.kelp_buy_orders # MAXIMUM SIZE OF MARKET ON BUY SIDE
             max_sell = self.kelp_position + 50 - self.kelp_sell_orders # MAXIMUM SIZE OF MARKET ON SELL SIDE
 
-            self.send_buy_order('KELP', buy_price, max_buy, msg=f"KELP: MARKET MADE Buy {max_buy} @ {buy_price}")
-            self.send_sell_order('KELP', sell_price, -max_sell, msg=f"KELP: MARKET MADE Sell {max_sell} @ {sell_price}")
+            pos = self.get_product_pos(state, 'KELP')
+            # if we are in long, and our best buy price IS the fair price, don't buy more 
+            if not(pos > 0 and float(buy_price) == decimal_fair_price):
+                self.send_buy_order('KELP', buy_price, max_buy, msg=f"KELP: MARKET MADE Buy {max_buy} @ {buy_price}")
+            
+            # if we are in short, and our best sell price IS the fair price, don't sell more
+            if not(pos < 0 and float(sell_price) == decimal_fair_price):
+                self.send_sell_order('KELP', sell_price, -max_sell, msg=f"KELP: MARKET MADE Sell {max_sell} @ {sell_price}")
 
-    def make_squid_market(self, state, sell_side=True, buy_side=True):
+    def make_squid_market(self, state, sell_side=True, buy_side=True, take_buys=True, take_sells=True, max_pos_percent=1):
         # this is the same logic as kelp!
         # position limits
         low = -50
@@ -400,8 +417,10 @@ class Trader:
                 ask = best_ask
                 bid = best_bid
                 
-                sell_price = ask - 1
-                buy_price = bid + 1
+                if ask - 1 > decimal_fair_price:
+                    sell_price = ask - 1
+                if bid + 1 < decimal_fair_price:
+                    buy_price = bid + 1
 
             maximum_sizing = 50
             max_buy =  maximum_sizing - state.position.get("SQUID_INK", 0) - self.squid_ink_buy_orders # MAXIMUM SIZE OF MARKET ON BUY SIDE
@@ -410,11 +429,16 @@ class Trader:
             max_buy = max(0, max_buy)
             max_sell = max(0, max_sell)
 
+            # cannot go over our position limits
+            max_pos = 50 * max_pos_percent
+            max_buy = min(max_buy, max_pos)
+            max_sell = min(max_sell, max_pos)
+
             if buy_side:
                 self.send_buy_order('SQUID_INK', buy_price, max_buy, msg=f"SQUID_INK: MARKET MADE Buy {max_buy} @ {buy_price}")
             if sell_side:
                 self.send_sell_order('SQUID_INK', sell_price, -max_sell, msg=f"SQUID_INK: MARKET MADE Sell {max_sell} @ {sell_price}")
-
+        
     def trade_squid(self, state):
         # position limits
         order_book = state.order_depths['SQUID_INK']
@@ -426,29 +450,74 @@ class Trader:
             bid, _ = list(buy_orders.items())[-1]  # worst bid
             decimal_fair_price = (ask + bid) / 2
 
+
             # Append to windows
             self.squid_ink_long_window_prices.append(decimal_fair_price)
             self.squid_ink_long_window_prices = self.squid_ink_long_window_prices[-self.squid_ink_long_window:]
             self.squid_ink_short_window_prices.append(decimal_fair_price)
             self.squid_ink_short_window_prices = self.squid_ink_short_window_prices[-self.squid_ink_short_window:]
 
+            if self.prev_price is not None:
+                price_diff = decimal_fair_price - self.prev_price
+                self.volatility_window_price_diffs.append(price_diff)
+                self.volatility_window_price_diffs = self.volatility_window_price_diffs[-self.volatility_window:]
+
             sell_side = True
             buy_side = True
+
+            # check volatility levels
+            volatility = 0
+            if len(self.volatility_window_price_diffs) == self.volatility_window:
+                volatility = np.std(self.volatility_window_price_diffs)
+                logger.print("SQUID_INK: VOLATILITY: " + str(volatility))
+
             # check if we have enough data
             if len(self.squid_ink_long_window_prices) == self.squid_ink_long_window:
+                logger.print("SQUID_INK: VOLATILITY THRESHOLD REACHED, TURNING OFF MARKET MAKING")
                 short_mean = np.mean(self.squid_ink_short_window_prices)
                 long_mean = np.mean(self.squid_ink_long_window_prices)
 
                 if long_mean < short_mean:
                     # market is up trending
                     buy_side = False
+                    logger.print("SQUID_INK: UP TRENDING, BUY SIDE OFF")
+
                 elif long_mean > short_mean:
                     # market is down trending
                     sell_side = False
-            
-            self.make_squid_market(state, sell_side=sell_side, buy_side=buy_side)
+                    logger.print("SQUID_INK: DOWN TRENDING, SELL SIDE OFF")
 
+                size = self.get_product_pos(state, 'SQUID_INK')
 
+                # fix this somehow  
+                squid_pos_size = abs(size/50)
+
+                if squid_pos_size > 0.8:
+                    # we are are near our position limit just make both market sides
+                    buy_side = True
+                    sell_side = True
+                    logger.print("SQUID_INK: NEAR POSITION LIMIT, BOTH SIDES ON")
+
+                # flash crash check
+                if self.prev_vol is not None:
+                    delta_vol = abs(volatility - self.prev_vol)
+                    self.prev_vol = volatility
+                    logger.print("delta volatility: " + str(delta_vol))
+                    # if huge price move, like abosolutely huge, just full send other direction
+                    if delta_vol > 2:
+                        logger.print("SQUID_INK: HUGE VOLATILITY MOVE, FULL SEND OTHER DIRECTION BANNANA ZOOONEEEE")
+
+                        if self.prev_price > decimal_fair_price:
+                            # price moved UP, SELL SELL SELL
+                            self.search_buys(state, 'SQUID_INK', decimal_fair_price+4, depth=3)
+                        elif self.prev_price < decimal_fair_price:
+                            # price moved down BUY BUY BUY YOLO TIME
+                            self.search_sells(state, 'SQUID_INK', decimal_fair_price-4, depth=3)
+                else:
+                    self.prev_vol = volatility
+
+            self.make_squid_market(state, sell_side=sell_side, buy_side=buy_side, max_pos_percent=1)
+            self.prev_price = decimal_fair_price
 
     # TODO: UPDATE WHENEVER YOU ADD A NEW PRODUCT
     def reset_orders(self, state):

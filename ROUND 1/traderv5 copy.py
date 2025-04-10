@@ -155,8 +155,8 @@ class Trader:
         self.squid_ink_sell_orders = 0
         self.squid_ink_short_window_prices = []
         self.squid_ink_long_window_prices = []
-        self.squid_ink_short_window = 10
-        self.squid_ink_long_window = 20
+        self.squid_ink_short_window = 50
+        self.squid_ink_long_window = 250
 
 
     # define easier sell and buy order functions
