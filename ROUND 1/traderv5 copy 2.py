@@ -434,10 +434,10 @@ class Trader:
         self.squid_ink_short_window_prices.append(mid_price)
         self.squid_ink_long_window_prices.append(mid_price)
 
-        self.squid_ink_short_window_prices = self.squid_ink_short_window_prices[-8:]
-        self.squid_ink_long_window_prices = self.squid_ink_long_window_prices[-24:]
+        self.squid_ink_short_window_prices = self.squid_ink_short_window_prices[-5:]
+        self.squid_ink_long_window_prices = self.squid_ink_long_window_prices[-15:]
 
-        if len(self.squid_ink_short_window_prices) < 8 or len(self.squid_ink_long_window_prices) < 24:
+        if len(self.squid_ink_short_window_prices) < 5 or len(self.squid_ink_long_window_prices) < 15:
             return  # Not enough data yet
 
         short_sma = np.mean(self.squid_ink_short_window_prices)
@@ -449,21 +449,13 @@ class Trader:
                 'active': False,
                 'side': None  # 'long' or 'short'
             }
-        # --- Exit Logic ---
-        if position != 0:
-            side = self.squid_trade_state['side']
-            if side == 'long' and mid_price >= short_sma and position > 0:
-                self.send_sell_order(product, best_bid, -position, msg="SQUID: EXIT LONG")
-                self.squid_trade_state['active'] = False
-
-            elif side == 'short' and mid_price <= short_sma and position < 0:
-                self.send_buy_order(product, best_ask, -position, msg="SQUID: EXIT SHORT")
-                self.squid_trade_state['active'] = False
                 
         # --- Entry Logic: Check for large market trade ---
         if not self.squid_trade_state['active']:
             for trade in market_trades:
                 if trade.quantity >= 15:
+                    logger.print("SQUID: LARGE MARKET TRADE DETECTED")
+                    logger.print(f"SQUID: Trade details: {trade}")
                     if mid_price < short_sma:
                         # Buy signal
                         qty = 15
@@ -479,7 +471,16 @@ class Trader:
                             self.squid_trade_state = {'active': True, 'side': 'short'}
                             break
 
+                # --- Exit Logic ---
+        if position != 0:
+            side = self.squid_trade_state['side']
+            if side == 'long' and mid_price >= short_sma and position > 0:
+                self.send_sell_order(product, best_bid, -position, msg="SQUID: EXIT LONG")
+                self.squid_trade_state['active'] = False
 
+            elif side == 'short' and mid_price <= short_sma and position < 0:
+                self.send_buy_order(product, best_ask, -position, msg="SQUID: EXIT SHORT")
+                self.squid_trade_state['active'] = False
 
 
     # TODO: UPDATE WHENEVER YOU ADD A NEW PRODUCT
