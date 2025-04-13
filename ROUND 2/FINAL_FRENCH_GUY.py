@@ -155,26 +155,55 @@ class Trader:
         self.squid_ink_position = 0
         self.squid_ink_buy_orders = 0
         self.squid_ink_sell_orders = 0
+        self.prev_squid_price = None
+
+        # windows
+        self.squid_ink_short_window_prices = []
+        self.squid_ink_long_window_prices = []
+        self.volatility_window_price_diffs = []
+        self.volatility_window = 50 # no need to change, unused
+        self.squid_ink_prices = []
 
 
+        #==================================
+        # SQUID INK HYPERPARAMS 
+        self.squid_ink_long_window = 1000   # long window size for squid ink
 
+        # market making
+        self.max_squid_market = 7          # determines max position size for market making
+
+        # spike trading
+        self.price_diff_threshold = 20      # threshold for detecting huge price spikes
+        self.threshold = 1                  # default threshold for squid ink spike trading
+        #==================================
 
         # ROUND 2
         # basket1
         self.basket1_premiums = []
         self.basket1_pos = 0
         self.basket2_pos = 0 # track independently
-
-        # basket2
         self.basket2_premiums = []
-        self.z_score_threshold_basket_2 = 20
-        self.basket_2_premium_mean = 48.82898734599846
-
-        # both baskets
         self.premium_difference = []
+        # basket2 mm
+        self.trade_on_turn = False
+        self.basket2_market_make_pos = 0
+        self.basket2_buy_orders = 0
+        self.basket2_sell_orders = 0
+
+        # HARD CODED MEANS 
+        self.basket_2_premium_mean = 48.82898734599846
         self.premium_diff_mean = 18.625755400487463
-        self.premium_diff_window = 50       # controls length of window for z-score entry and exit
-        self.z_score_threshold = 20
+
+        # HYPERPARAMS FOR BASKET WEAVING
+        #==================================
+        self.premium_diff_window = 30          # z-score window length
+        self.z_score_threshold_basket_2 = 10    # entry and exit for basket 2 premium
+        self.z_score_threshold = 20             # entry and exit for premium difference
+        #==================================
+        
+
+        
+
 
     # define easier sell and buy order functions
     def send_sell_order(self, product, price, amount, msg=None):
@@ -217,10 +246,20 @@ class Trader:
                         self.send_buy_order(product, ask, size, msg=f"TRADE BUY {str(size)} x @ {ask}")
                     
                     elif product == 'SQUID_INK':
-                        size = min(50-self.squid_ink_position-self.squid_ink_buy_orders, -amount)
+
+                        if self.max_squid_market:
+                            size = min(self.max_squid_market-self.squid_ink_position-self.squid_ink_buy_orders, -amount)
+                        else:
+                            size = min(50-self.squid_ink_position-self.squid_ink_buy_orders, -amount)
+
                         self.squid_ink_buy_orders += size 
-                        self.send_buy_order(product, ask, size, msg=f"TRADE BUY {str(size)} x @ {ask}")          
-                    
+                        self.send_buy_order(product, ask, size, msg=f"TRADE BUY {str(size)} x @ {ask}")  
+
+                    elif product == 'PICNIC_BASKET2':
+                        size = min(8-self.basket2_market_make_pos-self.basket2_buy_orders, -amount)
+                        self.basket2_buy_orders += size
+                        self.send_buy_order(product, ask, size, msg=f"TRADE BUY {str(size)} x @ {ask}")  
+
     def search_sells(self, state, product, acceptable_price, depth=1):   
         order_depth = state.order_depths[product]
         if len(order_depth.buy_orders) != 0:
@@ -240,10 +279,19 @@ class Trader:
                         self.send_sell_order(product, bid, -size, msg=f"TRADE SELL {str(-size)} x @ {bid}")
                     
                     elif product == 'SQUID_INK':
-                        size = min(self.squid_ink_position + 50 - self.squid_ink_sell_orders, amount)
+                        if self.max_squid_market:
+                            size = min(self.squid_ink_position + self.max_squid_market - self.squid_ink_sell_orders, amount)
+                        else:
+                            size = min(self.squid_ink_position + 50 - self.squid_ink_sell_orders, amount)
+
                         self.squid_ink_sell_orders += size
                         self.send_sell_order(product, bid, -size, msg=f"TRADE SELL {str(-size)} x @ {bid}")
 
+                    elif product == 'PICNIC_BASKET2':
+                        size = min(self.basket2_market_make_pos + 8 - self.basket2_sell_orders, amount)
+                        self.basket2_sell_orders += size
+                        self.send_sell_order(product, bid, -size, msg=f"TRADE SELL {str(-size)} x @ {bid}")
+                
     def get_bid(self, state, product, price):        
         order_depth = state.order_depths[product]
         if len(order_depth.buy_orders) != 0:
@@ -263,30 +311,6 @@ class Trader:
                     return ask
         
         return None
-
-    def get_second_bid(self, state, product):
-        order_depth = state.order_depths[product]
-        if len(order_depth.buy_orders) != 0:
-            orders = list(order_depth.buy_orders.items())
-            if len(orders) < 2:
-                return None
-            else:
-                bid, _ = orders[1]
-                return bid
-            
-        return None
-    
-    def get_second_ask(self, state, product):
-        order_depth = state.order_depths[product]
-        if len(order_depth.sell_orders) != 0:
-            orders = list(order_depth.sell_orders.items())
-            if len(orders) < 2:
-                return None
-            else:
-                ask, _ = orders[1]
-                return ask
-            
-        return None        
 
     def trade_resin(self, state):
         # Buy anything at a good price
@@ -374,9 +398,7 @@ class Trader:
             if not(pos < 0 and float(sell_price) == decimal_fair_price):
                 self.send_sell_order('KELP', sell_price, -max_sell, msg=f"KELP: MARKET MADE Sell {max_sell} @ {sell_price}")
 
-    def trade_squid_ink(self, state):
-        # this is the same logic as kelp!
-        # position limits
+    def make_squid_market(self, state):
         low = -50
         high = 50
 
@@ -397,7 +419,7 @@ class Trader:
 
             decimal_fair_price = (ask + bid) / 2
 
-            logger.print(f"SQUID_INK FAIR PRICE: {decimal_fair_price}")
+            
             self.search_buys(state, 'SQUID_INK', decimal_fair_price, depth=3)
             self.search_sells(state, 'SQUID_INK', decimal_fair_price, depth=3)
 
@@ -414,14 +436,107 @@ class Trader:
                 ask = best_ask
                 bid = best_bid
                 
-                sell_price = ask - 1
-                buy_price = bid + 1
+                if ask - 1 > decimal_fair_price:
+                    sell_price = ask - 1
+                if bid + 1 < decimal_fair_price:
+                    buy_price = bid + 1
+    
+            if self.max_squid_market:
+                maximum_sizing = self.max_squid_market
+            else:
+                maximum_sizing = 50
 
-            max_buy =  50 - self.squid_ink_position - self.squid_ink_buy_orders # MAXIMUM SIZE OF MARKET ON BUY SIDE
-            max_sell = self.squid_ink_position + 50 - self.squid_ink_sell_orders # MAXIMUM SIZE OF MARKET ON SELL SIDE
+            max_buy =  maximum_sizing - state.position.get("SQUID_INK", 0) - self.squid_ink_buy_orders # MAXIMUM SIZE OF MARKET ON BUY SIDE
+            max_sell = state.position.get("SQUID_INK", 0) + maximum_sizing - self.squid_ink_sell_orders # MAXIMUM SIZE OF MARKET ON SELL SIDE
+
+            # logger.print("SQUID_INK MAX MARKET BUY: ", max_buy)
+            # logger.print("SQUID_INK MAX MARKET SELL: ", max_sell)
+
+            max_buy = max(0, max_buy)
+            max_sell = max(0, max_sell)
 
             self.send_buy_order('SQUID_INK', buy_price, max_buy, msg=f"SQUID_INK: MARKET MADE Buy {max_buy} @ {buy_price}")
             self.send_sell_order('SQUID_INK', sell_price, -max_sell, msg=f"SQUID_INK: MARKET MADE Sell {max_sell} @ {sell_price}")
+        
+    def squid_ink_spike_trade(self, state, decimal_fair_price, long_mean, std, threshold):
+        if decimal_fair_price > long_mean + threshold*std:
+            logger.print(f"SQUID INK HIT LONG THRESHOLD: {decimal_fair_price} > {long_mean + threshold*std}")
+            # logger.print(f"FULL SELL MODE")
+            self.sell_squid_at_market(state)
+
+        elif decimal_fair_price < long_mean - threshold*std:
+            logger.print(f"SQUID INK HIT SHORT THRESHOLD: {decimal_fair_price} < {long_mean - threshold*std}")
+            # logger.print(f"FULL BUY MODE")
+            self.buy_squid_at_market(state)
+
+        else:                    
+            # logger.print(f"SQUID_INK FAIR PRICE: {decimal_fair_price}")
+            # logger.print(f"SQUID_INK LONG THRESHOLD: {long_mean + threshold*std}")
+            # logger.print(f"SQUID_INK SHORT THRESHOLD: {long_mean - threshold*std}")
+            self.make_squid_market(state) 
+
+    def buy_squid_at_market(self, state):
+        pos = self.get_product_pos(state, 'SQUID_INK')   
+        order_depth = state.order_depths['SQUID_INK']
+        if len(order_depth.sell_orders) != 0:
+            orders = list(order_depth.sell_orders.items())
+            # buy the whole book
+            for ask, amount in orders:
+                size = min(50 - pos - self.squid_ink_buy_orders, -amount)
+                self.squid_ink_buy_orders += size
+                self.send_buy_order('SQUID_INK', ask, size, msg=f"TRADE BUY {str(size)} x @ {ask}")
+
+    def sell_squid_at_market(self, state):
+        pos = self.get_product_pos(state, 'SQUID_INK')   
+        order_depth = state.order_depths['SQUID_INK']
+        if len(order_depth.buy_orders) != 0:
+            orders = list(order_depth.buy_orders.items())
+            # sell the whole book
+            for bid, amount in orders:
+                size = min(pos + 50 - self.squid_ink_sell_orders, amount)
+                self.squid_ink_sell_orders += size
+                self.send_sell_order('SQUID_INK', bid, -size, msg=f"TRADE SELL {str(-size)} x @ {bid}")
+
+    def trade_squid(self, state):
+        # position limits
+        order_book = state.order_depths['SQUID_INK']
+        sell_orders = order_book.sell_orders
+        buy_orders = order_book.buy_orders
+
+        self.squid_ink_sell_volume = 0
+        self.squid_ink_buy_volume = 0
+
+        if len(sell_orders) != 0 and len(buy_orders) != 0:
+            ask, _ = list(sell_orders.items())[-1] # worst ask
+            bid, _ = list(buy_orders.items())[-1]  # worst bid
+            decimal_fair_price = (ask + bid) / 2
+
+            # Append to windows
+            self.squid_ink_prices.append(decimal_fair_price)
+            self.squid_ink_prices = self.squid_ink_prices[-self.squid_ink_long_window:]
+
+            # check if we have enough data
+            if len(self.squid_ink_prices) < self.squid_ink_long_window:
+                self.make_squid_market(state)
+            else:
+                spike_trading = False
+                if self.prev_squid_price is not None:
+                    # price diff
+                    price_diff = abs(self.prev_squid_price - decimal_fair_price)
+                    # logger.print("SQUID INK PRICE DIFF: ", price_diff)
+                    if price_diff > self.price_diff_threshold:
+                        logger.print("SQUID INK SPIKE DETECTED")
+                        spike_trading = True
+
+                if spike_trading:
+                    threshold = self.threshold
+                    long_mean = np.mean(self.squid_ink_prices)
+                    std = np.std(self.squid_ink_prices)
+                    self.squid_ink_spike_trade(state, decimal_fair_price, long_mean, std, threshold)                  
+                else:
+                    self.make_squid_market(state)
+            
+            self.prev_squid_price = decimal_fair_price
 
     # =======================================
     # ROUND 2 TRADING LOGIC BELOW
@@ -602,7 +717,12 @@ class Trader:
 
         # limit is 32 in either direction (long or short, limited by amount of crossaints we can hold)
         buy_limit = 32 - self.basket2_pos 
+        logger.print("Basket 2 Pos: ", self.basket2_pos)
         basket2_pos = min(buy_limit, possible_buys)
+
+        if abs(basket2_pos) > 0:
+            self.trade_on_turn = True # we are trading this turn
+
 
         # Send out orders! Doing this ensures we never have to check if we are hedged, because we only
         # ever send our orders to b uy everything in a manner that would ensure we are hedged, simplifying any logic
@@ -644,8 +764,12 @@ class Trader:
         self.get_product_pos(state, 'PICNIC_BASKET2')
 
         # limit is 32 in either direction (long or short, limited by amount of crossaints we can hold)
-        buy_limit = 32 + self.basket2_pos 
-        basket2_pos = min(buy_limit, possible_sells)
+        max_sell = 32 + self.basket2_pos 
+        logger.print("Basket 2 Pos: ", self.basket2_pos)
+        basket2_pos = min(max_sell, possible_sells)
+
+        if abs(basket2_pos) > 0:
+            self.trade_on_turn = True
 
         # Send out orders! Doing this ensures we never have to check if we are hedged, because we only
         # ever send our orders to b uy everything in a manner that would ensure we are hedged, simplifying any logic
@@ -668,11 +792,12 @@ class Trader:
         self.send_sell_order('PICNIC_BASKET2', price, size,  
                              msg=F'SHORT-BASKET-2: SELL {abs(size)} PICNIC_BASKET2 @ {price}')    
 
-        self.basket2_pos += basket2_pos # update our basket2 position
+        self.basket2_pos -= basket2_pos # update our basket2 position
 
     def trade_baskets(self, state):
         # get the midprice of all items
-        
+
+        self.update_basket2_pos(state)
         products = ['PICNIC_BASKET1', 'PICNIC_BASKET2', 'JAMS', 'CROISSANTS', 'DJEMBES']
         product_data = {}
 
@@ -687,21 +812,17 @@ class Trader:
         self.basket2_premiums = self.basket2_premiums[-self.premium_diff_window:] # keep the last 10 values
         self.basket1_premiums = self.basket1_premiums[-self.premium_diff_window:] # keep the last 10 values
         
-        logger.print("len of basket 2 premiumss: " + str(len(self.basket2_premiums)))
-        logger.print("std of basket 2 premiums: " + str(np.std(self.basket2_premiums)))
-        logger.print("len of basket 1 premiumss: " + str(len(self.basket1_premiums)))
-        logger.print("std of basket 1 premiums: " + str(np.std(self.basket1_premiums)))
-
         premium_diff = basket1_premium - basket2_premium
 
         # TODO: EXPERIMENT WITH ROLLING WINDOWS, FOR NOW HARDCODE THE PREMIUM DIFFS
-        logger.print(f"Basket 1 Premium {basket1_premium}")
-        logger.print(f"Basket 2 Premium {basket2_premium}")
-        logger.print(f"Basket Premium Diff {premium_diff}")
+        # logger.print(f"Basket 1 Premium {basket1_premium}")
+        # logger.print(f"Basket 2 Premium {basket2_premium}")
+        # logger.print(f"Basket Premium Diff {premium_diff}")
 
         # Toggles for whether to arb both baskets.
         arb_baskets = True
         arb_basket2 = True
+        mm = True
 
         # Use rolling z-score to enter and exit on baskets
         self.premium_difference.append(premium_diff)
@@ -709,10 +830,11 @@ class Trader:
 
         if len(self.premium_difference) < self.premium_diff_window:
             logger.print("Not enough data to calculate z-score")
+            self.market_make_basket2(state)
             return
         
         premium_difference = np.std(self.premium_difference)
-        logger.print(f"Premium Difference STD {premium_difference}")
+        # logger.print(f"Premium Difference STD {premium_difference}")
         premium_difference_z_score = (premium_diff - self.premium_diff_mean) / premium_difference
         logger.print(f"Premium Difference Z-score: {premium_difference_z_score}")
 
@@ -731,10 +853,11 @@ class Trader:
         # I don't want to implement the logic to track everything dynamically, and I don't think
         # it's worth doing, so this is a good enough solution IMO, can discuss it later.
         if self.basket1_pos != 0:
+            self.trade_on_turn = True
             return 
         
         basket2_premium_std = np.std(self.basket2_premiums)
-        logger.print(f"Basket 2 STD {basket2_premium_std}")
+        # logger.print(f"Basket 2 STD {basket2_premium_std}")
         basket2_z_score = (basket2_premium - self.basket_2_premium_mean) / basket2_premium_std
         logger.print(f"Basket 2 Premium Z-score: {basket2_z_score}")
 
@@ -744,6 +867,96 @@ class Trader:
         
         elif basket2_z_score < -self.z_score_threshold_basket_2 and arb_basket2:
             self.long_basket_2(state, product_data) # long basket 2 and hedge accordingly
+
+        if self.trade_on_turn:
+            # dont market make on baskets, lets not complicate shit
+            return
+        
+        # final ly, do mm on basket2
+        if mm:
+            self.market_make_basket2(state)
+
+    def update_basket2_pos(self, state):
+        # update basket 2 position
+        # look through trades we made on picnic basket 2 and update our position accordingly
+
+        # logger.print("Traded on last turn?", self.trade_on_turn)
+        if self.trade_on_turn:
+            self.trade_on_turn = False
+            logger.print("Trading.. dont update mm pos")
+            return 
+
+        # logger.print("Old Basket 2 Market Making Position: ", self.basket2_market_make_pos)
+        for trade in state.own_trades.get('PICNIC_BASKET2', []):
+            if trade.timestamp == state.timestamp - 100:
+                if trade.buyer == 'SUBMISSION':
+                    self.basket2_market_make_pos += abs(trade.quantity)
+
+                elif trade.seller == 'SUBMISSION':
+                    self.basket2_market_make_pos -= abs(trade.quantity)
+                    
+        # logger.print("Basket 2 Market Making Position: ", self.basket2_market_make_pos)
+        self.trade_on_turn = False
+
+    def market_make_basket2(self, state):
+        # position limits
+        low = -50
+        high = 50
+
+        position = state.position.get("PICNIC_BASKET2", 0)
+
+        max_buy = high - position
+        max_sell = position - low
+
+        order_book = state.order_depths['PICNIC_BASKET2']
+        sell_orders = order_book.sell_orders
+        buy_orders = order_book.buy_orders
+        basket2_pos = self.basket2_market_make_pos
+
+        logger.print("Basket 2 position for market making: ", basket2_pos)
+
+        if len(sell_orders) != 0 and len(buy_orders) != 0:
+            ask, _ = list(sell_orders.items())[-1] # worst ask
+            bid, _ = list(buy_orders.items())[-1]  # worst bid
+            
+            fair_price = int(math.ceil((ask + bid) / 2))  # try changing this to floor maybe
+
+            decimal_fair_price = (ask + bid) / 2
+
+            logger.print(f"PICNIC_BASKET2 FAIR PRICE: {decimal_fair_price}")
+            self.search_buys(state, 'PICNIC_BASKET2', decimal_fair_price, depth=3)
+            self.search_sells(state, 'PICNIC_BASKET2', decimal_fair_price, depth=3)
+
+            # Check if there's another market maker
+            best_ask = self.get_ask(state, 'PICNIC_BASKET2', fair_price)
+            best_bid =  self.get_bid(state, 'PICNIC_BASKET2', fair_price)
+
+            # our ordinary market
+            buy_price = math.floor(decimal_fair_price) - 2
+            sell_price = math.ceil(decimal_fair_price) + 2
+        
+            # update market if someone else is better than us
+            if best_ask is not None and best_bid is not None:
+                ask = best_ask
+                bid = best_bid
+                
+                # check if we move our market if the price is still good
+                if ask - 1 > decimal_fair_price:
+                    sell_price = ask - 1
+                
+                if bid + 1 < decimal_fair_price:
+                    buy_price = bid + 1 
+            
+            max_buy =  8 - basket2_pos - self.basket2_buy_orders # MAXIMUM SIZE OF MARKET ON BUY SIDE
+            max_sell = basket2_pos + 8 - self.basket2_sell_orders # MAXIMUM SIZE OF MARKET ON SELL SIDE
+
+            # if we are in long, and our best buy price IS the fair price, don't buy more 
+            if not(basket2_pos > 0 and float(buy_price) == decimal_fair_price):
+                self.send_buy_order('PICNIC_BASKET2', buy_price, max_buy, msg=f"PICNIC_BASKET2: MARKET MADE Buy {max_buy} @ {buy_price}")
+            
+            # if we are in short, and our best sell price IS the fair price, don't sell more
+            if not(basket2_pos < 0 and float(sell_price) == decimal_fair_price):
+                self.send_sell_order('PICNIC_BASKET2', sell_price, -max_sell, msg=f"PICNIC_BASKET2: MARKET MADE Sell {max_sell} @ {sell_price}")
 
     # TODO: UPDATE WHENEVER YOU ADD A NEW PRODUCT
     def reset_orders(self, state):
@@ -765,6 +978,9 @@ class Trader:
 
         self.basket1_pos = 0 # We aren't trading basket 1 rn
 
+        self.basket2_sell_orders = 0
+        self.basket2_buy_orders = 0
+
         for product in state.order_depths:
             self.orders[product] = []
 
@@ -773,8 +989,9 @@ class Trader:
 
         # self.trade_resin(state)
         # self.trade_kelp(state)
-        # self.trade_squid_ink(state)
+        # self.trade_squid(state)
         self.trade_baskets(state)
 
         logger.flush(state, self.orders, self.conversions, self.traderData)
         return self.orders, self.conversions, self.traderData
+    
