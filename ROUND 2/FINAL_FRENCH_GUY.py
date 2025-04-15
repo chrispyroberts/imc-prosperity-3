@@ -197,7 +197,7 @@ class Trader:
         # HYPERPARAMS FOR BASKET WEAVING
         #==================================
         self.premium_diff_window = 30          # z-score window length
-        self.z_score_threshold_basket_2 = 10    # entry and exit for basket 2 premium
+        self.z_score_threshold_basket_2 = 20    # entry and exit for basket 2 premium
         self.z_score_threshold = 20             # entry and exit for premium difference
         #==================================
         
