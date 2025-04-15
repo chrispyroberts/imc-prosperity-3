@@ -41,7 +41,7 @@ def approximate_nash(iterations): # chatgpt's work, approximating nash equillibr
         values = []
         for i, (mult, initial_inh) in enumerate(containers):
             open_fraction = counts[i] / participants
-            denom = initial_inh + open_fraction * participants
+            denom = initial_inh + open_fraction * 100
             ev = (mult * base) / denom
             values.append(ev)
 
@@ -84,7 +84,7 @@ total_opens_all = sum(counts)
 for i, (mult, initial_inhabitants) in enumerate(containers):
     total_picked = counts[i]
     open_fraction = total_picked / total_opens_all
-    denominator = initial_inhabitants + open_fraction * participants
+    denominator = initial_inhabitants + open_fraction * 100
     ev = (mult * base) / denominator
     expected_values.append((ev, mult, initial_inhabitants, open_fraction, i))
 
