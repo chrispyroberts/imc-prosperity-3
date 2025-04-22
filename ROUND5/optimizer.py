@@ -44,6 +44,7 @@ def run_backtest():
         lines = result.stdout.strip().split('\n')
         if lines:
             last_line = lines[-1]
+            print(last_line)
             match = re.search(r'Total profit:\s*(-?[\d,]+)', last_line)
             if match:
                 pnl = float(match.group(1).replace(',', ''))

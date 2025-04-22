@@ -461,7 +461,7 @@ class Trader:
         self.underlying_spread = 0
         self.underlying_price_window = 5
 
-        self.window_size = 10
+        self.window_size = 20
 
         self.voucher_trading_threshold = 0.8
 
