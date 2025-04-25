@@ -120,28 +120,5 @@ BLAH BLAH BLAH
 Results
 </details>
 
-<<<<<<< HEAD
-=======
-<details>
-<summary><h3>Round 4 - Manual</h3></summary>
-
-BLAH BLAH BLAH
-</details>
-
-<details>
-<summary><h3>Round 5 - Algo</h3></summary>
-
-BLAH BLAH BLAH
-</details>
-
-<details>
-<summary><h3>Round 5 - Manual</h3></summary>
-
-BLAH BLAH BLAH
-</details>
-
-<br>
-
->>>>>>> 76e8260195e31b1f47adaccdbe78f4bbfba1f866
 ## 🏁 Final Thoughts
 Something philosophical
