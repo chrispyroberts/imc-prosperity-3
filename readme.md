@@ -94,6 +94,10 @@ Once again, these results were quite controversial. Some teams found out that th
 
 <details>
 <summary><h2>Round 3</h2></summary>
+
+
+<h3>Algo</h3>
+
 This round introduced 6 new products: Volcanic Rocks, and 5 different Volcanic Rock vouchers with strike prices of 9500, 9750, 10000, 10250, and 10500. These products very closely resembled european option contracts, and were set to expire in in 7 in-game trading days. Chris did the analysis for this round, and using the hint provided on the website to model the volatility smile by plotting the moneyness $m_t$ agaisnt the implied volatility $v_t$. Moneyness was calculated using the following formula $$m_t = log(K / S_t) / \sqrt(TTE)$$ where $K$ is the voucher strike price, $S_t$ is the price of the underlying at some time $t$, and $TTE$ being the time to expiration in years. 
 
 ![](images/volatility_smile.png)
@@ -106,18 +110,17 @@ A few other things we considered this round for algo:
 
 - Since we could hold up to 400 volcanic rocks, and 200 of any voucher, this meant if we went long 2 different vouchers, in the worst case, we could only completely hedge up to 2 vouchers assuming each had a delta of 1. Since we thought that this could get very complicated very quickly, so decided to cap all vouchers at a position size of 80 so we could guarantee that no matter what we would always be fully hedged. 
 
-<br>
-  
-<h3>Algo</h3>
-
-BLAH BLAH BLAH
 <h3>Manual</h3>
-
 BLAH BLAH BLAH
 
 <br>
 
-Results
+<h3>Results and Post-Round Analyysis</h3>
+This round was absolutely brutal for us. We only made 75,755 on algo and 53,430 on manual, while many of the top teams made >200k on algo. We knew either something was wrong or we had missed something.
+- We first realized Jasper's visualizer, which we were using extensively, was having some issue where it would cause the algorithm on submission to use more than 100mb of memory, causing the instance to reboot. This meant all local variables that the algorithm was using to trade would be wiped and re-initialized. This was a problem for our rolling windows containing short-term price movements important for trade entries and hedges on basket and volcanic rock products, causing our trader to effectively buy and sell these products randomly. In future submissions, we decided to remove Jasper's visualizer on our final submission to avoid this issue rather than debug it. 
+- We then realized we completely missed an extremely profitable trading strategy on volcanic vouchers. The issue was that our quadratic fit for implied volatility stopped being a good model on the submission day (who would have guessed that past data doesn't imply future data), and our model would either severely under or over estimate the actual IV. This meant our trader effectively would enter into a long / short position on IV for a voucher and stay in that position for the whole day. While the IV on the vouchers did spike, the amount of seashells this IV spike corresponded to was very little, so we pretty much made nothing from volcanic rocks by using our fitted model.  
+
+![](images/rocks.png)
 
 ---
 
