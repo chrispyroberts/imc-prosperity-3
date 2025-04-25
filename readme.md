@@ -70,12 +70,15 @@ After the round we decided it was too volatile to keep trading squid ink using o
   
 <h3>Algo</h3>
 Round two introduced new products: CROISSANTS, JAMS, DJEMBES, PICNIC_BASKET1 and PICNIC_BASKET2. Specifically, PICNIC_BASKET1 is said to contain 6 CROISSANTS, 3 JAMS and 1 DJEMBE and PICNIC_BASKET2 contains 4 CROISSANTS and 2 JAMS. We quickly realized these products were similar to previous years. We visualized the difference in price between each basket and it's constituents and plotted it to look for any interesting behaviors. The basket premiums looked like they were mean-reverting, and so we used the hard-coded mean of the bottle data with a short rolling window for standard deviation to calculate rolling z-scores, and would enter into short positions on a basket and long the underlying when the z-score went above 20 and long positions on baskets and short the underlying when the z-score dropped below -20. By hedging our position, we could isolate the basket premium and directly trade it.
+
 ![](images/basket_premiums.png)
 
 One key part of this round was position sizing. Position limits on the products would not allow us to go long both baskets at the same time while maintaining a perfect hedge. To make up for this, we decided to trade the difference between the premium in the baskets. Entering into fully hedge directional positions on the difference in premiums left us with a position size of 40 to trade basket 2, but we were limited by our remaining underlying position which only allowed us to fully hedge a position of 32 on basket 2. With our remaining position of 32, we traded the premium on basket 2 using the same exact strategy. This left us with a position size of 8 left on basket 2. Rather than let this position size go to waste not not utilize it, we noticed that there was a consistent spread of ~7 in the orderbook for basket 2, and ~10 for basket 1. We decided to market make using a maximum position size of 8 using this remaining position. While the unhedged market making basket position could potentially lose us some money, over backtests it consistently provided 5k extra seashells per day with minimal swings due to directional moves.
 
 There were a few other things that we tried. Chris, who had done the trading challange the previous year, had a suspicion that round 5 was going to be extremely similar to the previous year. Last year, there were bots that would send trade orders on certain products at exactly the top and bottom of the day, so he hypothesized that somewhere in the orderbook on certain timestamps, there would be a signal indicating that the current price is the highest/lowest of the day. 
-![](images/squid ink trades.png)
+
+![](images/squid_ink_trades.png)
+
 We found that for squid ink and croissants was clear that at the high and low of a given day, there was a trade present. This looked like a true signal, the problem was it also incldued many noisy and false signals. Unfortunately we discovered this very close to the end of the round, and didn't have time to write an algorithm that could effectively determine true signals from false ones, so we ended up not using this, and waiting until round 5 to confirm if this was a true signal or not.
 
 <h3>Manual</h3>
