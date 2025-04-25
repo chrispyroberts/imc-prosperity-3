@@ -153,7 +153,9 @@ BLAH BLAH BLAH
 
 <h3>Results and Post-Round Analysis</h3>
 
+![](images/round_4_res.png)
 
+We woke up to a very pleasant suprise. We were back in 8th! Out of all teams this round, we had the highest PNL, making a whopping 447,251 from our algo and manual!
 
 ---
 
