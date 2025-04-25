@@ -1,11 +1,8 @@
 from typing import List
-import string
 import numpy as np
-import json
 from typing import Any
 import math
 
-import json
 from typing import Any
 from datamodel import *
 from datamodel import Listing, Observation, Order, OrderDepth, ProsperityEncoder, Symbol, Trade, TradingState
@@ -15,6 +12,9 @@ from datamodel import Listing, Observation, Order, OrderDepth, ProsperityEncoder
 from math import log, sqrt, exp
 from statistics import NormalDist
 
+BASKET1_LIMIT = 10 # max of 60
+BASKET2_LIMIT = 10 # max of 100
+SQUID_LIMIT = 15
 class Logger:
     def __init__(self) -> None:
         self.logs = ""
@@ -143,12 +143,9 @@ class Logger:
 
         return out
 
+
 logger = Logger()
 
-
-BASKET1_LIMIT = 10 # max of 60
-BASKET2_LIMIT = 10 # max of 100
-SQUID_LIMIT = 15
 
 class BlackScholes:
     @staticmethod
@@ -309,7 +306,7 @@ class Trader:
                 # filter for occuring on this turn or before
                 if abs(trade.timestamp - state.timestamp) <= 100:
                     if trade.buyer == 'Olivia':
-                        logger.print(f"Olivia BUY {product}")
+                        # logger.print(f"Olivia BUY {product}")
                         if product == 'SQUID_INK':
                             self.squid_signal = 'BUY'
                         elif product == 'KELP':
@@ -318,7 +315,7 @@ class Trader:
                             self.croissants_signal = 'BUY'
                 
                     elif trade.seller == 'Olivia':
-                        logger.print(f"Olivia SELL {product}")
+                        # logger.print(f"Olivia SELL {product}")
                         if product == 'SQUID_INK':
                             self.squid_signal = 'SELL'
                         elif product == 'KELP':
@@ -330,7 +327,7 @@ class Trader:
             for trade in state.market_trades.get(product, []):
                 if abs(trade.timestamp - state.timestamp) <= 100:                    
                     if trade.buyer == 'Olivia':
-                        logger.print(f"OLIVIA BUY {product}")
+                        # logger.print(f"OLIVIA BUY {product}")
                         if product == 'SQUID_INK':
                             self.squid_signal = 'BUY'
                         elif product == 'KELP':
@@ -339,7 +336,7 @@ class Trader:
                             self.croissants_signal = 'BUY'
                 
                     elif trade.seller == 'Olivia':
-                        logger.print(f"OLIVIA SELL {product}")
+                        # logger.print(f"OLIVIA SELL {product}")
                         if product == 'SQUID_INK':
                             self.squid_signal = 'SELL'
                         elif product == 'KELP':
@@ -418,11 +415,11 @@ class Trader:
     def olivia_trading(self, state):
         if self.croissants_signal:
             if self.croissants_signal == 'BUY':   
-                logger.print("OLIVIA LONG ON CROISSANTS")             
+                # logger.print("OLIVIA LONG ON CROISSANTS")             
                 self.olivia_long_croissants(state)
 
             elif self.croissants_signal == 'SELL':
-                logger.print("OLIVIA SHORT ON CROISSANTS")
+                # logger.print("OLIVIA SHORT ON CROISSANTS")
                 self.olivia_short_croissants(state)
     
         if self.squid_signal:
@@ -448,7 +445,7 @@ class Trader:
         self.options_model = BlackScholes()
 
         self.timestamps_per_year = 365e6
-        self.days_left = 7 # day 1: 7, day 2: 6, day 3: 5, day 4: 4, day 5: 3
+        self.days_left = 3 # day 1: 7, day 2: 6, day 3: 5, day 4: 4, day 5: 3
 
         self.vouchers =  ['VOLCANIC_ROCK_VOUCHER_9500', 'VOLCANIC_ROCK_VOUCHER_9750',
                           'VOLCANIC_ROCK_VOUCHER_10000', 'VOLCANIC_ROCK_VOUCHER_10250',
@@ -950,8 +947,8 @@ class Trader:
                 self.send_sell_order('KELP', sell_price, -max_sell)
 
     def make_squid_market(self, state):
-        low = -50
-        high = 50
+        low = -SQUID_LIMIT
+        high = SQUID_LIMIT
 
         position = state.position.get("SQUID_INK", 0)
 
@@ -991,11 +988,8 @@ class Trader:
                     sell_price = ask - 1
                 if bid + 1 < decimal_fair_price:
                     buy_price = bid + 1
-    
-            if self.max_squid_market:
-                maximum_sizing = self.max_squid_market
-            else:
-                maximum_sizing = 50
+
+            maximum_sizing = SQUID_LIMIT
 
             max_buy =  maximum_sizing - state.position.get("SQUID_INK", 0) - self.squid_ink_buy_orders # MAXIMUM SIZE OF MARKET ON BUY SIDE
             max_sell = state.position.get("SQUID_INK", 0) + maximum_sizing - self.squid_ink_sell_orders # MAXIMUM SIZE OF MARKET ON SELL SIDE
@@ -1238,7 +1232,7 @@ class Trader:
             if trade.timestamp == state.timestamp - 100:
                 self.total_trades += abs(trade.quantity)      
 
-        logger.print(f"Total trades: {self.total_trades}")
+        # logger.print(f"Total trades: {self.total_trades}")
 
         if self.croissants_signal is None:
             for trade in state.own_trades.get("PICNIC_BASKET1", []):
@@ -1256,8 +1250,8 @@ class Trader:
                     else:
                         self.basket2_total_sells += abs(trade.quantity)
 
-            logger.print(f"Basket 1 Total Buys / Sells : {self.basket1_total_buys} / {self.basket1_total_sells}")
-            logger.print(f"Basket 2 Total Buys / Sells : {self.basket2_total_buys} / {self.basket2_total_sells}")
+            # logger.print(f"Basket 1 Total Buys / Sells : {self.basket1_total_buys} / {self.basket1_total_sells}")
+            # logger.print(f"Basket 2 Total Buys / Sells : {self.basket2_total_buys} / {self.basket2_total_sells}")
 
     def trade_macaroni(self, state):
         position = self.get_product_pos(state, "MAGNIFICENT_MACARONS")
@@ -1268,7 +1262,7 @@ class Trader:
             self.conversions += min(abs(position), 10) # can only do 10 at a time
             self.total_fills += self.conversions
 
-        logger.print(f"Total Fills: {self.total_fills}")
+        # logger.print(f"Total Fills: {self.total_fills}")
 
         obs = state.observations.conversionObservations.get('MAGNIFICENT_MACARONS', None)
 
@@ -1285,14 +1279,18 @@ class Trader:
 
         sell_local_break_even_price = conversion_ask + import_tariff + transport_fee        # buy from the island and sell local
 
-        logger.print(f"Local Break Even on Sell: {sell_local_break_even_price}")
+        # logger.print(f"Local Break Even on Sell: {sell_local_break_even_price}")
 
         # island_mid = (conversion_ask + conversion_bid) / 2 use floor of this
 
         sell_price = math.ceil(sell_local_break_even_price)
-        sell_price = max(math.floor(conversion_bid), sell_price)
+        sell_price = max(math.ceil(conversion_bid), sell_price)
 
-        max_sell = self.get_product_pos(state, 'MAGNIFICENT_MACARONS') + 20 + self.conversions 
+        # profit = conversion_ask + import_tariff + transport_fee - max(math.ceil(conversion_bid), sell_price)  
+        
+        fill_size = 30
+
+        max_sell = max(self.get_product_pos(state, 'MAGNIFICENT_MACARONS') + fill_size + self.conversions, 0)
 
         self.send_sell_order('MAGNIFICENT_MACARONS', sell_price, -max_sell, msg=f'MAGNIFICENT_MACARONS: Sell {max_sell} @ {sell_price}')   
 
@@ -1300,16 +1298,21 @@ class Trader:
         self.reset_orders(state)
         self.check_orders(state)
         
-        # self.check_olivia_trades(state)
-        # self.olivia_trading(state)
-        # if self.croissants_signal is None:
-        #     self.basket2_mm(state)
-        #     self.basket1_mm(state)
-        # if self.squid_signal is None:
-        #     self.trade_squid(state)
-        # self.trade_resin(state)
-        # self.trade_kelp(state)
+        self.check_olivia_trades(state)
+        self.olivia_trading(state)
+
+        if self.croissants_signal is None:
+            self.basket2_mm(state)
+            self.basket1_mm(state)
+        
+        if self.squid_signal is None:
+            self.trade_squid(state)
+
+        self.trade_resin(state)
+        self.trade_kelp(state)
         self.trade_vouchers(state)
+
+        # self.trade_macaroni(state)
 
         logger.flush(state, self.orders, self.conversions, self.traderData)
         return self.orders, self.conversions, self.traderData
