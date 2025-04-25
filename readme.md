@@ -15,7 +15,7 @@ At the end of each round, the algorithmic trading scripts and manual trading cha
 <br>
 
 ## 👥 The Team
-| Christopher Berman | [@chrispyroberts](https://github.com/chrispyroberts) |
+| Chris Berman | [@chrispyroberts](https://github.com/chrispyroberts) |
 
 | Nirav Koley | [@n-kly](https://github.com/n-kly) |
 
