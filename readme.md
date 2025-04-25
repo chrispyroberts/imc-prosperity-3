@@ -31,67 +31,90 @@ Good luck parsing it, things got a little scrappy near the end...
 ## 🧠 What you're probably here for
 
 Below are descriptions for both our algorithmic and manual trading strategies. We tried to play things safe and focused on market neutral strategies (straight line pnl)
-
 <details>
-<summary><h3>Round 1 - Algo</h3></summary>
+<summary><h3>Round 1</h3></summary>
+Thoughts going in
+<details>
+<summary><h3>Algo</h3></summary>
 
 BLAH BLAH BLAH
 </details>
 
 <details>
-<summary><h3>Round 1 - Manual</h3></summary>
+<summary><h3>Manual</h3></summary>
+
+BLAH BLAH BLAH
+</details>
+Results
+</details>
+
+<details>
+<summary><h3>Round 2</h3></summary>
+Thoughts going in
+<details>
+<summary><h3>Algo</h3></summary>
 
 BLAH BLAH BLAH
 </details>
 
 <details>
-<summary><h3>Round 2 - Algo</h3></summary>
+<summary><h3>Manual</h3></summary>
+
+BLAH BLAH BLAH
+</details>
+Results
+</details>
+
+<details>
+<summary><h3>Round 3</h3></summary>
+Thoughts going in
+<details>
+<summary><h3>Algo</h3></summary>
 
 BLAH BLAH BLAH
 </details>
 
 <details>
-<summary><h3>Round 2 - Manual</h3></summary>
+<summary><h3>Manual</h3></summary>
+
+BLAH BLAH BLAH
+</details>
+Results
+</details>
+
+<details>
+<summary><h3>Round 4</h3></summary>
+Thoughts going in
+<details>
+<summary><h3>Algo</h3></summary>
 
 BLAH BLAH BLAH
 </details>
 
 <details>
-<summary><h3>Round 3 - Algo</h3></summary>
+<summary><h3>Manual</h3></summary>
+
+BLAH BLAH BLAH
+</details>
+Results
+</details>
+
+<details>
+<summary><h3>Round 5</h3></summary>
+Thoughts going in
+<details>
+<summary><h3>Algo</h3></summary>
 
 BLAH BLAH BLAH
 </details>
 
 <details>
-<summary><h3>Round 3 - Manual</h3></summary>
+<summary><h3>Manual</h3></summary>
 
 BLAH BLAH BLAH
 </details>
-
-<details>
-<summary><h3>Round 4 - Algo</h3></summary>
-
-BLAH BLAH BLAH
+Results
 </details>
-
-<details>
-<summary><h3>Round 4 - Manual</h3></summary>
-
-BLAH BLAH BLAH
-</details>
-
-<details>
-<summary><h3>Round 5 - Algo</h3></summary>
-
-BLAH BLAH BLAH
-</details>
-
-<details>
-<summary><h3>Round 5 - Manual</h3></summary>
-
-BLAH BLAH BLAH
-</details>
-<br>
 
 ## 🏁 Final Thoughts
 Something philosophical
