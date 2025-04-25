@@ -94,8 +94,9 @@ Once again, these results were quite controversial. Some teams found out that th
 
 <details>
 <summary><h2>Round 3</h2></summary>
-Thoughts going in
+This round was easily the most stressful for all of us. 6 new products were introduced: Volcanic Rocks, and 5 different Volcanic Rock vouchers with strike prices of 9500, 9750, 10000, 10250, and 10500. These products very closely resembled european option contracts, and were set to expire in in 7 in-game trading days. Chris did the analysis for this round, and using the hint provided on the website to model the volatility smile by plotting the moneyness $m_t$ agaisnt the implied volatility $v_t$. Moneyness was calculated using the following formula $$m_t = log(K / S_t) / \sqrt(TTE)$$ where $K$ is the voucher strike price, $S_t$ is the price of the underlying at some time $t$, and $TTE$ being the time to expiration in years.  
 
+  
 <br>
   
 <h3>Algo</h3>
