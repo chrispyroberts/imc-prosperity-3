@@ -67,11 +67,11 @@ After the round we decided it was too volatile to keep trading squid ink using o
 
 <details>
 <summary><h2>Round 2</h2></summary>
-Going into round 2, we were pretty confident about everything and had high hopes that we could break into top 5.
-
-<br>
   
 <h3>Algo</h3>
+Round two introduced new products: CROISSANTS, JAMS, DJEMBES, PICNIC_BASKET1 and PICNIC_BASKET2. Specifically, PICNIC_BASKET1 is said to contain 6 CROISSANTS, 3 JAMS and 1 DJEMBE and PICNIC_BASKET2 contains 4 CROISSANTS and 2 JAMS. We quickly realized these products were similar to previous years. We visualized the difference in price between each basket and it's constituents and plotted it to look for any interesting behaviors.
+
+![image](https://github.com/user-attachments/assets/542a80de-7b28-46f7-991c-e098881f8a39)
 
 
 <h3>Manual</h3>
