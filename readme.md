@@ -36,88 +36,108 @@ Good luck parsing it, things got a little scrappy near the end...
 
 Below are descriptions for both our algorithmic and manual trading strategies. We tried to play things safe and focused on market neutral strategies (straight line pnl)
 <details>
-<summary><h3>Round 1</h3></summary>
+<summary><h2>Round 1</h2></summary>
 Thoughts going in
-<details>
-<summary><h3>Algo</h3></summary>
+
+<br>
+  
+<h3>Algo</h3>
 
 BLAH BLAH BLAH
-</details>
-
-<details>
-<summary><h3>Manual</h3></summary>
+<h3>Manual</h3>
 
 BLAH BLAH BLAH
-</details>
+
+<br>
+
 Results
+
+---
+
 </details>
 
 <details>
-<summary><h3>Round 2</h3></summary>
+<summary><h2>Round 2</h2></summary>
 Thoughts going in
-<details>
-<summary><h3>Algo</h3></summary>
+
+<br>
+  
+<h3>Algo</h3>
 
 BLAH BLAH BLAH
-</details>
-
-<details>
-<summary><h3>Manual</h3></summary>
+<h3>Manual</h3>
 
 BLAH BLAH BLAH
-</details>
+
+<br>
+
 Results
+
+---
+
 </details>
 
 <details>
-<summary><h3>Round 3</h3></summary>
+<summary><h2>Round 3</h2></summary>
 Thoughts going in
-<details>
-<summary><h3>Algo</h3></summary>
+
+<br>
+  
+<h3>Algo</h3>
 
 BLAH BLAH BLAH
-</details>
-
-<details>
-<summary><h3>Manual</h3></summary>
+<h3>Manual</h3>
 
 BLAH BLAH BLAH
-</details>
+
+<br>
+
 Results
+
+---
+
 </details>
 
 <details>
-<summary><h3>Round 4</h3></summary>
+<summary><h2>Round 4</h2></summary>
 Thoughts going in
-<details>
-<summary><h3>Algo</h3></summary>
+
+<br>
+  
+<h3>Algo</h3>
 
 BLAH BLAH BLAH
-</details>
-
-<details>
-<summary><h3>Manual</h3></summary>
+<h3>Manual</h3>
 
 BLAH BLAH BLAH
-</details>
+
+<br>
+
 Results
+
+---
+
 </details>
 
 <details>
-<summary><h3>Round 5</h3></summary>
+<summary><h2>Round 5</h2></summary>
 Thoughts going in
-<details>
-<summary><h3>Algo</h3></summary>
+
+<br>
+  
+<h3>Algo</h3>
 
 BLAH BLAH BLAH
-</details>
-
-<details>
-<summary><h3>Manual</h3></summary>
+<h3>Manual</h3>
 
 BLAH BLAH BLAH
-</details>
+
+<br>
+
 Results
+
+---
+
 </details>
 
 ## 🏁 Final Thoughts
