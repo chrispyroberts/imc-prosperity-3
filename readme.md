@@ -48,6 +48,8 @@ Kelp was a little more complicated. It displayed some mild price drift and a sma
 
 Then came Squid Ink, which was basically trading meme-coins, with consistent 100 seashells swings in a single step and seemingly no clear pattern. The IMC parrot kept hinting that “there’s a pattern if you look closely,” but to be honest, we don't believe any real exploitable structure existed. We tested a variety of strategies, including rolling z-scores, volatility breakouts, and MACD signals, but none offered any consistent edge. Employing the same market making and taking strategy as Kelp and Resin proved useful, since we found the same mechanic present for squid ink as we did for Kelp, but the massive spikes in price that appeared randomly would wipe our any PNL we had made for the day. Even though this could work both in our favor or agaisnt it, we decided it was too volatile, and adapted our strategy to do market making and taking but only with 10% of our total position allocated at any given moment. This severely capped our total PNL on squid ink, but to make up for this, we added in a spike detection indicator, with the hypothesis that the moment price spikes, it will quickly mean-revert. This made our PNL across all days for squid-ink much more stable, and our spike detection appeared to be correctly capturing the large mean reversions apparent in the data.
 
+![](images/squid_ink.png)
+
 <h3>Manual</h3>
 
 BLAH BLAH BLAH
