@@ -171,6 +171,32 @@ After our emotions settled, Chris ran some backtests on Macron arbing and confir
 <br>
   
 <h3>Algo</h3>
+This round no new products were introduced. Instead, we were told the counterparties that we were trading agaisnt. Specifically, there were 11 other bots trading the same products we were. We started by first visualizing all trading activity for all the bots, by plotting products prices and overlaying a scatter plot with the prices bots would trade at. We did this for all bots and all products, and quickly found that one bot, 'Olivia', would buy/sell and the low/high of the day on 3 different products.
+
+![](images/olivia_signal.png)
+
+Chris had correctly guessed that the trades present in round 2 data did indeed have a true signal. Using this information, we planned to update our algorithms to copy Olivia's trades.
+- After running some quick tests, we found that we were making more just market making and taking on kelp than using Olivia's signal, so we left our Kelp trading alone.
+
+- For Squid Ink, we decided to market make and take with maximum position sizing until Olivia's signal, and then just follow it for the rest of the day.
+
+- Croissants was slightly more complicated because we were using it as a hedge in our basket trades. We estimated that we were making ~30k per day by doing statistical arbitrage on the basket premiums. Because we had a true signal on croissants, Chris reasoned that we shouldn't take trades on baskets in the opposite direction of Olivia's signal, as the price of Croissants accounted for ~50% of the price of the basket.
+
+  
+- Building off this, we decided to YOLO into Croissants. Our maximum position size for Croissants was 250, but if we went long on both baskets, we could effectively be long 1050 Croissants. We estimated that on a bad trading day for this signal, the difference between the high and low on Croissants is 40 seashells, so a lower bound on our croissants PNL was 40 * our position size. Going long an extra 800 Croissants on this bad day will give us an extra 32k Seashells.
+
+
+- Our statistical basket arbitrage was hitting 40k on it's best days, while YOLOing croissaints on Olivia's signal was getting up to 120k on a good day (difference of about ~120 between the high and low). We decided this was the best idea, and it was also very simple to implement.
+
+
+- We hedged the baskets by selling Jams and Djembes. Our final position ended up being exposed to 30 Jams. By taking on the extra 30 jams, we were able to go long another 60 croissants. Jams would move around 50 on their most volatile day, so we decided that this was a risk worth taking.
+
+
+- We also realized we were exposed to the premium of the basket, and that in a near worst-case scenario, we could lose up to 300 seashells per basket if we bought at the top of the premium then sold at the bottom for both basket 1 and 2, potentially losing up to 45,000 seashells due to premium. We ultimately decided that this risk was also worth taking as in expectation the loss is 0.
+
+  
+- While waiting for Olivia's signal, we did market making on both picnic baskets, making up to 10k extra seashells per day depending on how long before Olivia's signal. 
+
 
 BLAH BLAH BLAH
 <h3>Manual</h3>
