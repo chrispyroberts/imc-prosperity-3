@@ -165,7 +165,7 @@ After our emotions settled, Chris ran some backtests on Macron arbing and confir
 
 <details>
 <summary><h2>Round 5</h2></summary>
-Thoughts going in
+Thoughts going in: Our Ranking is like Squid Ink
 
 <br>
   
