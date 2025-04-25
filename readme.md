@@ -155,7 +155,9 @@ BLAH BLAH BLAH
 
 ![](images/round_4_res.png)
 
-We woke up to a very pleasant suprise. We were back in 8th! Out of all teams this round, we had the highest PNL, making a whopping 447,251 from our algo and manual!
+We woke up to a very pleasant suprise. We were back in 8th! Out of all teams this round, we had the highest PNL, making a whopping 447,251 from our algo and manual! We realized that had we not messed up round 3, we would be in second, and we also realized we had a better algo than #1, making 20k on them while having a very straight PNL curve. We also found that in backtests on the submission for round 3, our algo PNL was slightly better than #1, pretty much confirming that we had the same strategies but potentially slightly better. We had a real stop of making the top 2, or maybe even top 1, and were incredibly motivated.
+
+After our emotions settled, Chris ran some backtests on Macron arbing and confirmed that around 100k of our PNL came from Macrons. He also found out that out of the 10,000 steps in the submission, we only traded 56,000 macrons. Because we only sent orders in sizes of 10, we estiamted that we were only trading about half the time. Because the import tariffs were very negative, we were making ~3 seashells per Macron we arbed, and so by not trading on 4,400 timesteps, we effectively left 44,000 macrons on the table, which would been an upper bound on the PNL we didn't capture was 132k. Chris reasoned that sometimes the aggressive buyer of Macrons would sometimes not be there, and so we would want to have a small stockpile of Macrons that we are always short for timesteps where we don't get to sell. By simply ensuring that we always sold up to 30 instead 10, we traded 95,000 macrons. This however would lead to a net short position the entire day, which we estiamted could potentially cost us 30 * 400 = 12,000, with the 400 coming from the largest price movement we observed in the data. We decided this risk was worth taking, given that we were almost doubling the amount of Macrons we were arbing. 
 
 ---
 
