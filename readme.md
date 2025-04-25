@@ -85,7 +85,8 @@ We found that for squid ink and croissants was clear that at the high and low of
 
 BLAH BLAH BLAH
 
-<br>
+<h3>Results and Post-Round Analysis</h3>
+
 
 Once again, these results were quite controversial. Some teams found out that the timestamp in which the bots would trade were exactly the same as the previous year. This meant that teams could predict when buy and sell orders would be filled, and they could take the entire bid/ask of an orderbook out and place their own orders below/above them and have them instnatly be filled, leading to millions in profit per round. This, in our opinion and many others, was unfair and not in the spirit of the challange. While only 2 teams found this (they had millions of seashells at this point), the admins once again decided to disallow this sort of hardcoding, and after reviewing the code of many in the top 25, asked teams who they believed were using this to their advantage to submit versions of their algorithms that did not have this hard coding behavior, ultimately causing them to drop many places on the leaderboard. As for us, we moved up into 7th place with a total PNL of 243,083 (165,656 algo + 77,427 manual).
 
