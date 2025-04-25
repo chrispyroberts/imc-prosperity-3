@@ -197,14 +197,16 @@ Chris had correctly guessed that the trades present in round 2 data did indeed h
 - One final optimization Chris made was that while waiting for Olivia's signal, we would market make and take on both picnic baskets since they both had large spreads. This made us an 10k seashells per day depending on how long before Olivia's signal. 
 
 
-BLAH BLAH BLAH
 <h3>Manual</h3>
 
 BLAH BLAH BLAH
 
 <br>
 
-Results
+<h3>Results & Post-Round Analysis</h3>
+We finished 7th! and #1 in the US!!! We we really happy with this result. Our algo made 244,740 seashells and we made 138,274 on manual. Frankfurt, who we knew with high probability had a very similar strategy to us, made a similar amount. Heisenberg, the #1 team, made more than 800k on algo this round! We still have no idea how he did this, but Kudos to them for figuring out something that no other team could! 
+
+Chris, after talking with Jasper about his algo on the last round, realized that z-score based strategies on Volcanic rocks performed really well across all days in backtests. Using Jasper's volcanic rock z-score trading logic, and using the same hyperparameters, we were able to make an extra 150k per day by trading volcanic rocks, a product we decided not to trade at all. However, we were still unsure if this was truly an edge-generating strategy or just very lucky, because small tweaks to the hyperparameters or implementation would lead to wildly different backtesting results, some often being very negative in PNL. 
 
 ---
 
