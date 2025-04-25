@@ -192,7 +192,7 @@ Chris had correctly guessed that the trades present in round 2 data did indeed h
 - We hedged the baskets by going opposite on Jams and Djembes, as the movement of the basket was still about 50% correlated with these products. Our final position ended up being exposed to 30 Jams due to position limits. By taking on the extra 30 jams, we were able to go long another 60 croissants. We found that Jams would move around 50 on their most volatile day, so the upside of the 60 Croissants was higher than the potential downside on Jams leading us to believe that this was a risk worth taking.
 
 
-- We also realized we were exposed to the premium of the basket, and that in a near worst-case scenario, we could lose up to 300 seashells per basket if we bought at the top of the premium then sold at the bottom for both basket 1 and 2, potentially losing up to 45,000 seashells due to premium. We ultimately decided that this risk was also worth taking as in expectation the loss is 0.
+- We also realized we were exposed to the premium of the basket, and that in a near worst-case scenario, we could lose up to 300 seashells per basket we were holding if at the top of the premium then sold at the bottom or vice versa for both basket 1 and 2, potentially losing up to 45,000 seashells due to premium. We ultimately decided that this risk was also worth taking as in expectation the loss is 0.
 
   
 - While waiting for Olivia's signal, we did market making on both picnic baskets, making up to 10k extra seashells per day depending on how long before Olivia's signal. 
