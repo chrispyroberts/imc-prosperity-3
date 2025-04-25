@@ -48,8 +48,6 @@ Kelp was a little more complicated. It displayed some mild price drift and a sma
 
 Then came Squid Ink, which was basically trading meme-coins, with consistent 100 seashells swings in a single step and seemingly no clear pattern. The IMC parrot kept hinting that “there’s a pattern if you look closely,” but to be honest, we don't believe any real exploitable structure existed. We tested a variety of strategies, including rolling z-scores, volatility breakouts, and MACD signals, but none offered any consistent edge. Employing the same market making and taking strategy as Kelp and Resin proved useful, since we found the same mechanic present for squid ink as we did for Kelp, but the massive spikes in price that appeared randomly would either instantly double take away any PNL we had made for the day. We decided to take a gamble on this and see what would happen on the submission day. 
 
-![](images/squid_ink.png)
-
 <h3>Manual</h3>
 
 BLAH BLAH BLAH
@@ -57,6 +55,11 @@ BLAH BLAH BLAH
 <br>
 
 First round results were kind of controversial, it was kind of obvious that the round 1 data on the website was actual price history for the first 1000 timestamps on day 1 (instead of 1000 time stamps from previous test days) so a bunch of people ended up hardcoding in their trades on the first 1000 timestamps. This combined with squid ink spiking in the opposite direction as our market making position, meant we actually lost seashells off squid ink and ended up in 771'st place. However, the round was re-run due to the hard-coding being considered cheating and we shot up to 9th place with a total PNL of 107,237 seashells (43,243 algo + 44,340 manual). We got incredibly lucky on the re-run because squid ink spiked in our favor rather than agaisnt it.  The top 3 teams seemed to have some how found something out, that meant they were ~100k seashells ahead of everyone else, but between us and 4th place was only a couple thousand seashells. 
+
+After the round we decided it was too volatile to keep trading squid ink using our current strategy, and adapted it to do market making and taking but only with 10% of our total position allocated at any given moment. This reduced the total PNL made from market making and taking on squid ink by around 50%, but to make up for this, we added in a spike detection indicator, with the hypothesis that the moment price spikes, it will quickly mean-revert. This made our PNL across all days for squid-ink much more stable. For our spike detection algorithm, we used a small window rolling standard deviation on price difference, and when this standard deviation was larger than 20, we would fully enter into the opposite direction price just moved.
+
+![](images/squid_ink.png)
+
 
 ---
 
