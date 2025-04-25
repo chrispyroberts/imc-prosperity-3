@@ -50,7 +50,7 @@ Then came Squid Ink, which was basically trading meme-coins, with consistent 100
 
 <h3>Manual</h3>
 
-TODO: WRITE THIS
+See [Leetcode 3387. Maximize Amount After Two Days of Conversions](https://leetcode.com/problems/maximize-amount-after-two-days-of-conversions/description/) 
 
 <h3>Results and Post-Round Analysis</h3>
 
