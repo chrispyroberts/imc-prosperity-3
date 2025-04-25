@@ -131,11 +131,14 @@ This round was absolutely brutal for us as we fell from 7th to 241st, making us 
 
 <details>
 <summary><h2>Round 4</h2></summary>
-Thoughts going in
-
 <br>
   
 <h3>Algo</h3>
+This round introduced a new product called Magnificent Macrons. Magnificent Macrons can be bought or sold on the local island and then converted on the Pristine Island (thinking buying BTC from one crypto exchange then selling it on another, same exact concept). However, when converting your position, you pay fees, which include a transport cost, an export tariff, which is paid if you convert a long position (think exporting from main island) or an import tariff (think importing to main island). In addition to this, you pay a storage fee of 0.1 seashells per timestamp per Macron you hold, heavily encouraging you to never hold long positions. While the price movements of Macron are strongly correlated with sugarPrice and sunlightIndex, we decided to completely ignore this, as simply arbitraging across islands was far more profitable than predicting the movements Macron's using some model. 
+
+After the dissapointing algo results in round 3, we felt defeated and were honestly ready to give up. Breaking into the top 25, let alone the top 10, seemed impossible from this position. In Chris' opinion, this round was incredibly easy, as it was very similar to round 2 last year, and his trading algo last year landed him in 3rd place that round, so he was confident that re-implementing his strategy from last year would net good results. He didn't even attempt to model the price of Macrons using sunlight because he had PTSD from last year after spending 13 hours in a day trying to model Orchids (product from last year round 2) using sunlight and getting nowhere. 
+
+Because import tariffs were negative, we were paid to sell on the local island and convert on the Pristine island. To calculate the price needed to sell a Macron for to break even after converting, we used the following formula: $$\text{sell_local_break_even_price = conversion_ask + import_tariff + transport_fee}$$ We also noticed that there was a bot agressively taking orders on our local island around the mid price of the Pristine island. We used this to our advantage by placing sell orders near this mid price if it was above our break even price, and immediately converting them after they were filled. We would pocket the difference between how much we sold it for and our break even price, multiplied by 10 because we could convert 10 at a time. In backtests, Chris estimated a potential profit of up to 100k on Macrons over the course of the day depending on how negative import tariffs were. We were happy with this so submitted and went to bed. 
 
 BLAH BLAH BLAH
 <h3>Manual</h3>
