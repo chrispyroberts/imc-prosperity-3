@@ -25,9 +25,9 @@ At the end of each round, both algorithmic and manual results were combined into
 ## 👥 The Team
 | Chris Roberts   | [@chrispyroberts](https://github.com/chrispyroberts) | [LinkedIn](https://www.linkedin.com/in/chrisberman/)
 
-| Nirav Koley     | [@n-kly](https://github.com/n-kly)                   |
+| Nirav Koley     | [@n-kly](https://github.com/n-kly)                   | 
 
-| Aditya Dabeer   | [@Aditya-Dabeer](https://github.com/Aditya-Dabeer)   |
+| Aditya Dabeer   | [@Aditya-Dabeer](https://github.com/Aditya-Dabeer)   | [LinkedIn](https://www.linkedin.com/in/adityadabeer/)
 
 | Timur Takhtarov | [@timtakcs](https://github.com/timtakcs)             | 
 
