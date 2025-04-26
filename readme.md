@@ -1,5 +1,5 @@
-<img src="images/tUzNeX.gif" width="900"/>
-<img src="images/island_photo.png" width="900"/>
+<img src="images/tUzNeX.gif" width="1200"/>
+<img src="images/island_photo.png" width="1200"/>
 
 
 # CMU Physics 🐚🐚🐚 
