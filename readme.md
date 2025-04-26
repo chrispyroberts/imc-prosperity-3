@@ -49,12 +49,18 @@ Kelp was a little more complicated. It displayed some mild price drift and a sma
 Then came Squid Ink, which was basically trading meme-coins, with consistent 100 seashells swings in a single step and seemingly no clear pattern. The IMC parrot kept hinting that “there’s a pattern if you look closely,” but to be honest, we don't believe any real exploitable structure existed. We tested a variety of strategies, including rolling z-scores, volatility breakouts, and MACD signals, but none offered any consistent edge. Employing the same market making and taking strategy as Kelp and Resin proved useful, since we found the same mechanic present for squid ink as we did for Kelp, but the massive spikes in price that appeared randomly would either instantly double take away any PNL we had made for the day. We decided to take a gamble on this and see what would happen on the submission day. 
 
 <h3>Manual</h3>
+  
+This manual was pretty simple, it was a currency exchange problem were it was possible to exchange currencies in a way to profit of of it.
+
+See [Leetcode 3387. Maximize Amount After Two Days of Conversions](https://leetcode.com/problems/maximize-amount-after-two-days-of-conversions/description/) 😂.
+
+Seriously though, this was a relativley trivial manual and all we had to do was a breadth first search across all possible currency conversions.
 
 See [Leetcode 3387. Maximize Amount After Two Days of Conversions](https://leetcode.com/problems/maximize-amount-after-two-days-of-conversions/description/) 
 
 <h3>Results and Post-Round Analysis</h3>
 
-First round results were kind of controversial, it was kind of obvious that the round 1 data on the website was actual price history for the first 1000 timestamps on day 1 (instead of 1000 time stamps from previous test days) so a bunch of people ended up hardcoding in their trades on the first 1000 timestamps. This combined with squid ink spiking in the opposite direction as our market making position, meant we actually lost seashells off squid ink and ended up in 771'st place. However, the round was re-run due to the hard-coding being considered cheating and we shot up to 9th place with a total PNL of 107,237 seashells (43,243 algo + 44,340 manual). We got incredibly lucky on the re-run because squid ink spiked in our favor rather than agaisnt it.  The top 3 teams seemed to have some how found something out, that meant they were ~100k seashells ahead of everyone else, but between us and 4th place was only a couple thousand seashells. 
+First round results were kind of controversial, it was kind of obvious that the round 1 data on the website was actual price history for the first 1000 timestamps on day 1 (instead of 1000 time stamps from previous test days) so a bunch of people ended up hardcoding in their trades on the first 1000 timestamps. This combined with squid ink spiking in the opposite direction as our market making position, meant we actually lost seashells off squid ink and ended up in 771'st place. However, the round was re-run due to the hard-coding being considered cheating and we shot up to 9th place with a total PNL of 107,237 seashells (43,243 algo + 44,340 manual). We got incredibly lucky on the re-run because squid ink spiked in our favor rather than agaisnt it.  The top 3 teams seemed to figure something out that nobody else could and were ~100k seashells ahead of everyone else, but between us and 4th place was only a couple thousand seashells. 
 
 After the round we decided it was too volatile to keep trading squid ink using our current strategy, and adapted it to do market making and taking but only with 10% of our total position allocated at any given moment. This reduced the total PNL made from market making and taking on squid ink by around 50%, but to make up for this, we added in a spike detection indicator, with the hypothesis that the moment price spikes, it will quickly mean-revert. This made our PNL across all days for squid-ink much more stable. For our spike detection algorithm, we used a small window rolling standard deviation on price difference, and when this standard deviation was larger than 20, we would fully enter into the opposite direction price just moved.
 
@@ -73,22 +79,48 @@ Round two introduced new products: CROISSANTS, JAMS, DJEMBES, PICNIC_BASKET1 and
 
 ![](images/basket_premiums.png)
 
-One key part of this round was position sizing. Position limits on the products would not allow us to go long both baskets at the same time while maintaining a perfect hedge. To make up for this, we decided to trade the difference between the premium in the baskets. Entering into fully hedge directional positions on the difference in premiums left us with a position size of 40 to trade basket 2, but we were limited by our remaining underlying position which only allowed us to fully hedge a position of 32 on basket 2. With our remaining position of 32, we traded the premium on basket 2 using the same exact strategy. This left us with a position size of 8 left on basket 2. Rather than let this position size go to waste not not utilize it, we noticed that there was a consistent spread of ~7 in the orderbook for basket 2, and ~10 for basket 1. We decided to market make using a maximum position size of 8 using this remaining position. While the unhedged market making basket position could potentially lose us some money, over backtests it consistently provided 5k extra seashells per day with minimal swings due to directional moves.
+One key part of this round was position sizing. Position limits on the products would not allow us to go long on both baskets at the same time while maintaining a perfect hedge. To make up for this, we decided to trade the difference between the premium in the baskets. That is, when our calculated z-score on the difference in premium between basket 1 and 2 was above 20, we would short basket 1, long basket 2, and then hedge accordingly. This trading strategy used 100% of our position limits for basket 1, but only 60% of out position limit on basket 2. Position limits on the underlying did not allow us to use the full remaining 40% while maintaining a perfect hedge, only 32%, so we traded the strategy on basket 2 using this capped position size, leaving us with 8% position size left over. Rather than let this position size go to waste not not utilize it, we noticed that there was a consistent spread of ~7 in the orderbook for basket 2, and ~10 for basket 1. We decided to market make using a maximum position size of 8%, leaving our total position utilization at 100%. While the unhedged market making position could potentially lose us some shells, over backtests it consistently provided 5k extra seashells per day with minimal swings due to directional moves.
 
 There were a few other things that we tried. Chris, who had done the trading challange the previous year and placed 15th, had a suspicion that round 5 was going to be extremely similar to the previous year. Last year, there were bots that would send trade orders on certain products at exactly the top and bottom of the day, so he hypothesized that somewhere in the orderbook on certain timestamps, there would be a signal indicating that the current price is the highest/lowest of the day. 
 
 ![](images/squid_ink_trades.png)
 
-We found that for squid ink and croissants was clear that at the high and low of a given day, there was a trade present. This looked like a true signal, the problem was it also incldued many noisy and false signals. Unfortunately we discovered this very close to the end of the round, and didn't have time to write an algorithm that could effectively determine true signals from false ones, so we ended up not using this, and waiting until round 5 to confirm if this was a true signal or not.
+We found that for squid ink and croissants there was always a trade of quantity 15 at the high and low of a given day. This looked like a true signal, the problem was it also incldued many noisy and false signals. Unfortunately we discovered this very close to the end of the round, and didn't have time to write an algorithm that could distinguish true from false signals, so we ended up not using this and decided to wait until round 5 to confirm if this was a true signal or not.
 
 <h3>Manual</h3>
 
-BLAH BLAH BLAH
+
+This round’s manual was particularly interesting: we had the choice of selecting up to two out of ten available shipping containers, each with different **multipliers** and **inhabitants**. The key mechanic was that your profit from a container depended not just on the container’s treasure multiplier, but also on how many other players chose the same one:
+
+> **PNL = (10,000 × Multiplier) / (Number of inhabitants + % of total selections that picked this container)**
+
+The first container choice was free, but opening a second cost **50,000 SeaShells**.
+
+We realized fairly early on that this wasn’t just a math problem; it was about simulating player behavior. Containers that were underselected would naturally end up with a higher expected value (EV) than those that looked good initially. At first, we tried writing a basic Monte Carlo simulation where agents simply picked the two containers with the highest immediate EV. This rough model didn’t converge well and ended up giving confusing, unreliable numbers. Looking back, this was the right idea but just poorly executed and didn't have the right goal in mind.
+
+We came up with the idea of estimating the **Nash equilibrium** across the crates, using a similiar but simpler greedy Monte Carlo simulation that aimed to predict the base selection rates for each container. 
+
+![](images/containers_nash.png)
+
+When we ran the numbers, we found that the Nash equilibrium values for the containers were consistently **below 50,000 SeaShells**, meaning that opening a second container would almost always be a losing play. From this point on, we decided to only focus on selecting **one container**, believing that hedging across two was too risky given the low payouts.
+
+On top of the Nash equilibrium strategy, we built a set of **priors** based on how we thought players would actually behave, the goal with these assumptions was to try and price in how people might act (beyond just following the nash). These alternative strategies ranged a lot from just random selection to phsycolgoical bias (the number 7 & 3 are well-documented to be more 'likeable' to humans and thus picked more frequently when asked to pick a number from 1-10)  Our hypothesis was that:
+
+- 15% of players would play according to Nash equilibrium,
+- 50% would choose randomly,
+- 20% would gravitate toward “nice numbers” (multipliers like 73, 17, and 37),
+- 10% would misread the prompt and simply pick based on initial EV,
+- and 5% would follow the flawed Monte Carlo strategy we had initially come up with.
+
+We re-ran a new Monte Carlo simulation based on these priors and recalculated the EVs of all the containers, aiming to account for both rational and irrational human actors. Ultiamtely we chose to only pick the 80x crate (this was a bad idea).
+
+![](images/updated_nash_containers.png)
 
 <h3>Results and Post-Round Analysis</h3>
 
-
 Once again, these results were quite controversial. Some teams found out that the timestamp in which the bots would trade were exactly the same as the previous year. This meant that teams could predict when buy and sell orders would be filled, and they could take the entire bid/ask of an orderbook out and place their own orders below/above them and have them instnatly be filled, leading to millions in profit per round. This, in our opinion and many others, was unfair and not in the spirit of the challange. While only 2 teams found this (they had millions of seashells at this point), the admins once again decided to disallow this sort of hardcoding, and after reviewing the code of many in the top 25, asked teams who they believed were using this to their advantage to submit versions of their algorithms that did not have this hard coding behavior, ultimately causing them to drop many places on the leaderboard. As for us, we moved up into 7th place with 243,083 seashells, making 102,758 seashells from our algo and 33,087 from the manual.
+
+Looking back on the manual, we definitely **underestimated** how many players would stick close to Nash equilibrium, and **overestimated** the randomness in player behavior. Additionally, our simulation didn’t properly prioritize the impact of the "nice numbers" category, which led us to overweight the chances of truly random selections. Our misjudgments here probably contributed the most to our low overall ranking in the manual component of the tournament. However, it wasn't a total loss — we took the lessons from this round, updated our priors accordingly, and built a much stronger player modeling system for future decision-based rounds.
 
 </details>
 
@@ -98,31 +130,67 @@ Once again, these results were quite controversial. Some teams found out that th
 
 <h3>Algo</h3>
 
-This round introduced 6 new products: Volcanic Rocks, and 5 different Volcanic Rock vouchers with strike prices of 9500, 9750, 10000, 10250, and 10500. These products very closely resembled european option contracts, and were set to expire in in 7 in-game trading days. Chris did the analysis for this round, and using the hint provided on the website to model the volatility smile by plotting the moneyness $m_t$ agaisnt the implied volatility $v_t$. Moneyness was calculated using the following formula $$m_t = log(K / S_t) / \sqrt(TTE)$$ where $K$ is the voucher strike price, $S_t$ is the price of the underlying at some time $t$, and $TTE$ being the time to expiration in years. 
+This round introduced 6 new products: Volcanic Rocks, and 5 different Volcanic Rock vouchers with strike prices of 9500, 9750, 10000, 10250, and 10500. These products very closely resembled european option contracts, and were set to expire in in 7 in-game trading days. Chris did the analysis for this round, and using the hint provided on the website to modeled the volatility smile by plotting the moneyness $m_t$ agaisnt the implied volatility $v_t$. Moneyness was calculated using the following formula $$m_t = log(K / S_t) / \sqrt(TTE)$$ where $K$ is the voucher strike price, $S_t$ is the price of the underlying at some time $t$, and $TTE$ being the time to expiration in years. 
 
 ![](images/volatility_smile.png)
 
-Fitting a quadtratic to this we found parameters $a, b, c$ for the equation $v_t = a \cdot m_t^2 + b \cdot m_t + c$ allowing us to predict a 'fair' implied volatility for any a given $m_t$. After coding this up, we found the best way to take advantages of this was to code an agressive market maker using our fitted implied volatility. We also added in functionality to automatically hedge our positions after every timestamp, ensuring that we are only exposed to the implied volatility of a contract. Our backtesting PNL curve was a straight line on most days, indicating that we found a reasonable strategy that is direction-neutral. From our backtests, we were expecting to make ~80k from all voucher products and ~100k from other products.
+Fitting a quadtratic to this we found parameters $a, b, c$ for the equation $v_t = a \cdot m_t^2 + b \cdot m_t + c$ allowing us to predict a 'fair' implied volatility for any a given $m_t$. After coding this up, we found the best way to take advantages of this was to code a market maker on this fitted implied volatility. This was an extremely aggressive market maker, and would often cross with the market makers in the orderbook. We also added in functionality to automatically hedge our positions after every timestamp, ensuring that we are only exposed to the implied volatility of a contract. Our backtesting PNL curve was a straight line on most days, indicating that we found a reasonable strategy that is direction-neutral. We hypothesised that this was because we were more accurately modelling the true IV of the vouchers. From our backtests, we were expecting to make ~80k from all voucher products and ~100k from other products.
 
 A few other things we considered this round for algo: 
 
 - Something we considered as part of our analysis was how much we are losing in our long voucher positions due to theta decay. Chris found that the theta decay of the vouchers had a maximum 800 annualized, meaning that holding a voucher for a year, assuming nothing about the underlying or voucher changes, that the value of the voucher would decrease by 800 seashells over the course of the year. So he estimated that the upper bound on how much we would lose due theta decay on a given day if we were fully long 200 of a given voucher was ~430 seashells. (800 seashells per year /  365 days per year * 1 day * 200 vouchers  = ~430 seashells per day per voucher we are fully long). This amount was negligible compared to the 80k we were making on backtests. 
 
-- Since we could hold up to 400 volcanic rocks, and 200 of any voucher, this meant if we went long 2 different vouchers, in the worst case, we could only completely hedge up to 2 vouchers assuming each had a delta of 1. Since we thought that this could get very complicated very quickly, so decided to cap all vouchers at a position size of 80 so we could guarantee that no matter what we would always be fully hedged. 
+- Since we could hold up to 400 volcanic rocks, and 200 of any voucher, this meant if we went long 2 different vouchers, in the worst case, we could only completely hedge up to 2 vouchers assuming each had a delta of 1. Since we thought that this could get very complicated very quickly, we decided to cap all vouchers at a position size of 80 so we could guarantee that no matter what we would always be fully hedged. This greatly simplified our delta hedging logic, and made it very easy to implement the delta-neutral trading strategy. There is probably a better way to do this, but given the time-constraints of the challange, we thought this was a favorable trade off.
 
 <h3>Manual</h3>
-BLAH BLAH BLAH
+In this round, we had to place **two bids** to acquire **Sea Turtles' Flippers**. Each turtle accepted the **lowest bid above their reserve price**, where reserves were **uniformly distributed** between **160–200** and **250–320**.
 
+For the **second bid**, a penalty applied if your offer was **below the average** of all second bids, scaling your profit by:
+
+> $$ p = \left(\frac{320 – \text{average bid}}{320 – \text{your bid}}\right)^3 $$
+
+All acquired Flippers could later be sold for **320 SeaShells** each.
+
+For this manual, we took a more systematic approach from the start. First, we isolated the **one-bid scenario** and ran a Monte Carlo simulation for every possible bid between 160 and 320.  
+![](images/1bid_flippers.png)
+
+From this, we found that if we were limited to only one bid, it was clearly optimal to set it at **200** — just at the cutoff before the dead zone of 200–250.
+
+Next, we tackled the **two-bid scenario**, initially **ignoring** the impact of the *p* scaling (i.e., assuming no penalty for being under the average second bid). We ran another Monte Carlo simulation where the **first bid** was fixed at **200**, and the **second bid** varied across the full range from 160 to 320.  
+![](images/2bid_flippers.png)
+
+At this point, it became clear that **picking 285 for the second bid** was the Nash Equilibrium: if all players played optimally (GTO), they would pick **200** first and **~285** second, ensuring their second bid was just above the reserve range and staying above the average.
+
+However, we realized that some players might attempt to **undercut** the average slightly — placing their second bids just above 285 to exploit players who bid exactly at Nash, thereby pushing their bids below the average and subjecting them to the *p* scaling penalty.
+
+To account for this, we built a new set of **priors**, this time using **continuous probability distributions** rather than discrete categories (since bids could be any number within the range). Our assumptions were:
+
+- **10%** of players would play perfect Nash,
+- **25%** would concentrate around the optimal mid-point (tight Nash cluster),
+- **49%** would pick values **slightly higher than the GTO price**,
+- **1%** would pick completely randomly,
+- **15%** would intentionally grief (e.g., bots setting bids at 160 or 320 to skew the distribution, as discussed in Discord).
+
+![](images/flippers_dist.png)
+
+We then modeled these priors and re-simulated outcomes, finding that the **optimal second bid** was approximately **290** — slightly higher than the GTO point to hedge against players trying to outmaneuver Nash bidders.
 <br>
 
 <h3>Results and Post-Round Analyysis</h3>
-This round was absolutely brutal for us as we fell from 7th to 241st, making us all believe that a comeback was impossible. We only made 75,755 on algo and 53,430 on manual, while many of the top teams made >200k on algo. We knew either something was wrong or we had missed something.
 
-- We first realized Jasper's visualizer, which we were using extensively, was having some issue where it would cause the algorithm on submission to use more than 100mb of memory, causing the instance to reboot. This meant all local variables that the algorithm was using to trade would be wiped and re-initialized. This was a problem for our rolling windows containing short-term price movements important for trade entries and hedges on basket and volcanic rock products, causing our trader to effectively buy and sell these products randomly. In future submissions, we decided to remove Jasper's visualizer on our final submission to avoid this issue rather than debug it. 
+The manual of this roudn turned out not so decent. The **actual average** second bid ended up being around **286**, slightly higher than pure GTO but very much in line with our expectations. Looking at the resulting graphs, it was clear that most players aimed for Nash or slightly above it, confirming that our modeling approach and priors were pretty spot-on.
 
-- Chris then realized we completely missed an extremely profitable trading strategy on volcanic vouchers. The issue was that our quadratic fit for implied volatility stopped being a good model on the submission day (who would have guessed that past data doesn't imply future data), and our model would either severely under or over estimate the actual IV. This meant our trader effectively would enter into a long / short position on IV for a voucher and stay in that position for the whole day. While the IV on the vouchers did spike, the amount of seashells this IV spike corresponded to was very little, so we pretty much made nothing from volcanic rocks by using our fitted model. In the figure below, Chris plotted the IV for bids and asks on different vouchers across time, along with a short rolling window of the mid IV. Using the mean of this rollowing window instead of our quadtratic fit as a model for the fair IV made our backtester PNL shoot up from 80k to 150k on every single day, including the day of submission.
+![](images/flippers_final.png)
 
-- Chris then also ran some backtests to figure out how much our hedge cost us. Since trading volcanic rock had a spread of 1, every buy/sell effectively cost us 0.5 seashells. By counting the total trades we took while hedging out position, -Chris found that we paying over 40k in spread just to hedge our position. He then tried to make an upper-bound for how much we could lose due to being unhedged. At one point in the day, volcanic rocks moved by 100 in a single step, which assuming a delta of 1, would correspond to a maximum loss of 40k. We decided that because to us price movement appears random, in expectation this will net to 0 and that we would go unhedged on volcanic vouchers in future rounds. This boosted our backtester PNL on all volcanic rock products to 250 per day.
+Overall though, this round was absolutely brutal for us as we fell from 7th to 241st, making us all believe that a comeback was impossible. We only made 75,755 on algo while many of the top teams made >200k on algo. We knew either something was wrong or we had missed something.
+
+- We first realized Jasper's visualizer, which we were using extensively, was having some issue where it would cause the algorithm on submission to use more than 100mb of memory, causing the AWS lambda instance to restart. This meant all local variables that our algorithm was using to trade would be wiped and re-initialized. This was a problem for our rolling windows which were important for trade entries and hedges on basket and volcanic rock products, and caused our trader to effectively buy and sell these products randomly. In future submissions, we decided to remove Jasper's visualizer on our final submission to avoid this issue rather than debug it. 
+
+- Chris then realized we completely missed an extremely profitable trading strategy on volcanic vouchers. The issue was that our quadratic fit for implied volatility stopped being a good model on the submission day, and our model would either severely under or over estimate the IV the market was trading at. This meant our trader effectively would enter into a long / short position on IV for a voucher and stay in that position for the whole day. While the IV on the vouchers did spike, the amount of seashells this IV spike corresponded to was very little, so we pretty much made nothing from volcanic rocks by using our fitted model. In the figure below, Chris plotted the IV for bids and asks on different vouchers across time, along with a short rolling window of the mid IV. Using the mean of this rollowing window instead of our quadtratic fit as a model for the fair IV made our backtester PNL shoot up from 80k to 150k on every single day, including the day of submission.
+
+- Chris then also ran some backtests to figure out how much our hedge cost us. Since the orderbook for volcanic rock had a consistent spread of 1, every buy/sell effectively cost us 0.5 seashells. By counting the total trades we took while hedging out position, Chris found that we were paying over 40k in spread just to hedge our position. This gave us the idea that we might not want to hedge our position.
+
+- Chris estimated an upper-bound for how much we could lose due to being unhedged. At one point in the day, volcanic rocks moved by 100 seashells in a single step, which assuming a delta of 1, would correspond to a maximum loss of 40k if we were holding 400 vouchers. Chris tracked the average delta we were exposed to throughout the day, and found that it was almost always as if we were long 160 of the underlying, meaning Chris' estimate was a very high upper bound, and a more realistic guess was a potential maximum loss of 16k in a single step. We decided that because to price movement appears random (at least to us) and the potential upside of not hedging was greater than our realistic expectation of maximum drawdown (40k > 16k), combined with our hypothesis that in expectation the net loss is 0, that going unhedged would be a risk worth taking. This boosted our backtester PNL on all volcanic rock products to 250k per day.
 
 ![](images/rocks.png)
 
@@ -131,20 +199,67 @@ This round was absolutely brutal for us as we fell from 7th to 241st, making us 
 
 <details>
 <summary><h2>Round 4</h2></summary>
-Thoughts going in
-
 <br>
+
+After the dissapointing algo results in round 3, we felt defeated and were honestly ready to give up. Breaking into the top 25, let alone the top 10, seemed impossible from this position. Luckily, in Chris' opinion, this round was incredibly easy, as it was very similar to round 2 last year, and his trading algo last year landed him in 3rd place that round, so he was confident that re-implementing his strategy from last year would net good results. 
   
 <h3>Algo</h3>
+This round introduced a new product called Magnificent Macrons. Magnificent Macrons can be bought or sold on the local island and then converted on the Pristine Island (thinking buying BTC from one crypto exchange then selling it on another, same exact concept). However, when converting your position, you pay fees, which include a transport cost, an export tariff, which is paid if you convert a long position (think exporting from main island) or an import tariff (think importing to main island). In addition to this, you pay a storage fee of 0.1 seashells per timestamp per Macron you hold, heavily encouraging you to never hold long positions. While the price movements of Macron are strongly correlated with sugarPrice and sunlightIndex, we decided to completely ignore this, as simply arbitraging across islands was far more profitable than predicting the movements Macron's using a model. 
+
+- Because import tariffs were negative, we were paid to sell on the local island and convert on the Pristine island. To calculate the price needed to sell a Macron for to break even after converting, we used the following formula: sell_local_break_even_price = conversion_ask + import_tariff + transport_fee.
+
+- We also noticed that there was a bot agressively taking orders on our local island around the mid price of the Pristine island. We used this to our advantage by placing sell orders near this mid price if it was above our break even price, and immediately converting them after they were filled. We would pocket the difference between how much we sold it for and our break even price, multiplied by 10 because we could convert 10 at a time.
+
+- In backtests, Chris estimated a potential profit of up to 100k on Macrons over the course of the day depending on how negative import tariffs were. We were happy with this so submitted and went to bed. 
 
 BLAH BLAH BLAH
 <h3>Manual</h3>
 
-BLAH BLAH BLAH
+In this round, players could open up to **three suitcases** containing prizes. Opening one suitcase was free, but opening a second or third required paying a fixed cost. 
 
+Each suitcase had a **prize multiplier** (up to 100) and a known number of **inhabitants** already selecting it. Profit was calculated as:
+
+> **Profit = (10,000 × Multiplier) ÷ (Number of inhabitants + % of global suitcase selections)**
+
+Costs for opening additional suitcases applied after this division, making careful suitcase selection critical.
+
+This challenge was nearly identical to Round 2, giving us a shot at redemption. We started strong by immediately calculating the **Nash equilibrium** across all suitcases.  
+![](images/cases_nash.png)
+
+Since the Nash EV was **greater than 50,000** (the cost of opening a second suitcase), we determined it was profitable to **open two suitcases**.
+
+The real challenge came in **modeling human behavior**. Fortunately, players had shared post-analysis from Round 2 on Discord, showing how actual picks compared to Nash predictions.  
+![](images/containers_real.png)
+
+The findings were surprising:
+- **Way more players** picked close to Nash than we had expected.
+- There was **massive buy pressure** on "nice numbers" like **17** and **73**, confirming our human psychology prior.
+- Minor deviations elsewhere seemed due to random noise.
+
+Based on this, we simplified and updated our priors:
+- **50–60%** of players would pick according to Nash distribution.
+- **5–15%** would concentrate on the most selected parts of Nash.
+- **5–10%** would favor the least selected parts (based on over-correcting from last round’s profitable crates).
+- **10–15%** would pick randomly.
+- **10–15%** would favor "nice numbers" based on human psychology.
+
+Rather than running another Monte Carlo simulation (since this was a discrete problem), we created a **probability distribution** directly across all suitcases. We multiplied base Nash probabilities by the expected deviations from our priors to estimate suitcase popularity mathematically.  
+![](images/cases_dist.png) 
+![](images/cases_predicted.png) 
+
+Using this model, we selected **suitcases 83 and 47** as our picks.
 <br>
 
-Results
+<h3>Results and Post-Round Analysis</h3>
+
+![](images/round_4_res.png)
+
+We woke up to a very pleasant suprise. We were back in 8th! Out of all teams this round, we had the highest PNL, making a whopping 447,251 from our algo and manual! We realized that had we not messed up round 3, we would be in second. We also realized based on our algo PNL that we had a very similar trading strategies to #1 (Frankfurt Hedgehogs), making 20k on them while having a very straight PNL curve. This combined with the fact that Chris found in backtests on the submission for round 3 that our algo PNL was again very similar to #1, pretty much confirmed that we had the same trading strategies but potentially slightly better. We had a real stop of making the top 2, or maybe even top 1, and were incredibly motivated.
+
+This manual went **extremely well** for us. While we didn’t absolutely maximize profits, our approach paid off — our predicted densities were **very close to the actual results**, leading to strong EV predictions and a solid gain in ranking.  
+*(Insert predicted vs actual densities/EVs picture.)*
+
+After our emotions settled, Chris ran some backtests on Macron arbing and confirmed that around 100k of our PNL came from Macrons. He also found out that out of the 10,000 steps in the submission, we only traded 56,000 macrons. Because we only sent orders in sizes of 10, we estiamted that we were only trading about half the time. Because the import tariffs were very negative, we were making ~3 seashells per Macron we arbed, and so by not trading on 4,400 timesteps, we effectively left 44,000 macrons on the table, meaning we potentially left 132k seashells on the table. Chris reasoned that sometimes the aggressive buyer of Macrons would sometimes not be there, and so we would want to have a small stockpile of Macrons that we are always short for timesteps where we don't get to sell. By simply ensuring that we always sold up to 30 instead 10, we traded 95,000 macrons. This however would lead to a net short position the entire day, which we estiamted could potentially lead to a loss of 30 * 400 = 12,000 seashells if price moved agaisnt us (the 400 number being the largest price movement we observed in the data). Given that we were almost doubling the amount of Macrons we were arbing and hence doubling our PNL, we decided this risk was worth taking,
 
 ---
 
@@ -152,24 +267,85 @@ Results
 
 <details>
 <summary><h2>Round 5</h2></summary>
-Thoughts going in
+
+![](images/Hr_Tnb.gif)
 
 <br>
   
 <h3>Algo</h3>
+This round no new products were introduced. Instead, we were told the counterparties that we were trading agaisnt. Specifically, there were 11 other bots trading the same products we were. We started by visualizing all trading activity for all the bots, and plotted products prices and overlayed a scatter plot with the prices bots would trade at. We did this for all bots and all products, and quickly found that one bot, 'Olivia', would buy/sell and the low/high of the day every day on 3 different products.
 
-BLAH BLAH BLAH
+![](images/olivia_signal.png)
+
+Chris had correctly guessed that the trades present in round 2 data did indeed have a true signal. Using this information, we planned to update our algorithms to copy Olivia's trades.
+
+- After running some quick tests, we found that we were making more just market making and taking on kelp than using Olivia's signal, so we left our Kelp trading alone.
+
+
+- For Squid Ink, we decided to market make and take with maximum position sizing until Olivia's signal, and then just follow it for the rest of the day.
+
+
+- Croissants was slightly more complicated because we were using it as a hedge in our basket trades. We estimated that we were making ~30k per day by doing statistical arbitrage on the basket premiums. Because we had a true signal on croissants, Chris reasoned that we shouldn't take trades on baskets in the opposite direction of Olivia's signal, as the price of Croissants accounted for ~50% of the price of the basket.
+
+  
+- Building off this, we decided to YOLO into Croissants. Our maximum position size for Croissants was 250, but if we went long on both baskets, we could effectively be long 1050 Croissants. We estimated that on a bad trading day for this signal, the difference between the high and low on Croissants is 40 seashells, so a lower bound on our croissants PNL was 40 * our position size. Going long an extra 800 Croissants on this bad day will give us an extra 32k Seashells.
+
+
+- Our statistical basket arbitrage was hitting 50k on it's best days, while YOLOing croissaints on Olivia's signal was getting up to 120k on its best day (difference of about ~120 between the high and low). We decided this was the best idea. Convinient that it was also very simple to implement.
+
+
+- We hedged the baskets by going opposite on Jams and Djembes, as the movement of the basket was still about 50% correlated with these products. Our final position ended up being exposed to 30 Jams due to position limits. By taking on the extra 30 jams, we were able to go long another 60 croissants. We found that Jams would move on average 50 on their most volatile day, so the upside of the 60 Croissants was higher than the potential downside on Jams leading us to believe that this was a risk worth taking.
+
+
+- We also realized we were exposed to the premium of the basket, and that in a near worst-case scenario, we could lose up to 300 seashells per basket we were holding if we bought at the top of premium then sold at the bottom or vice versa, meaning a total potential loss of up to 45,000 seashells due to premium movement agaisnt us while in our trade. We could not think of a way to reduce this risk.
+
+
+- Chris found that with 90% confidence the difference in basket 2 premiums from one timestep to the next was stationary, and with 95% confidence for basket 1, so we reasoned that its a coinflip that premium will move agaisnt us, and the probability of us buying right as the series is mean reverting is incredibly low (assuming Olivia's signal is not correlated with the top/bottom of premiums). Because of this, we reasoned that our potential loss is most likely not 45,000 and more realistically 20,000 at most, and that in expectation our loss is 0. Based on this line of reasoning, we ultimately decided that this risk was worth taking. 
+
+- One final optimization Chris made was that while waiting for Olivia's signal, we would market make and take on both picnic baskets since they both had large spreads. This made us an 10k seashells per day depending on how long we had to wait before Olivia's signal. 
+
 <h3>Manual</h3>
 
-BLAH BLAH BLAH
+For this round, we had to trade on 9 different products and derive sentiments from the 'goldberg' terminal. Trading was not only influenced by **sentiment**, but also incurred increasing **fees** based on how much of each product was purchased:
+
+> **Fee(x) = 120 × x²**, where *x* is the portfolio allocation fraction.
+
+This made optimizing both **selection** and **sizing** critical to maximize profits.
+
+At first, this round seemed purely **vibe-based**. However, after some thought, we realized it was actually a **portfolio optimization** problem in disguise.
+
+The first step was to generate **priors** for how each product's price might move.  
+Luckily, we found data online from previous years, and noticed that the tradeable products were almost **identical** to those offered this year. This allowed us to **map historical returns** onto current products. 
+
+However, the instructions were vague — it was unclear whether price movements were **purely player-driven** or **predetermined**. To be cautious:
+- We **adjusted** last year’s return data slightly based on **sentiment from Discord** and our **own intuition**.
+- We used historical data mostly to **estimate the range of possible movements** rather than directly copying past results.
+![](images/goldberg_sentiments.png) 
+
+Once we had reasonable return estimates, we tackled the portfolio allocation. With **9 products** and the **quadratic fee structure**, it was clear that naive brute-force (e.g., a grid search) would be computationally impossible.
+
+Instead, we used **convex optimization** (`cvxpy`) to solve for the **optimal portfolio allocation**, maximizing expected returns while minimizing fee penalties.
+![](images/goldberg_optimal.png) 
+
+We also decided to **tone down** the allocation weights slightly for higher-risk products to **mitigate the chance of getting burned** if our return estimates were wrong.
 
 <br>
 
-Results
+<h3>Results & Post-Round Analysis</h3>
+We finished 7th! and 1st in the US! We we really happy with this result. Our algo made 244,740 seashells and we made 138,274 on manual. Frankfurt, who we knew with high probability had a very similar strategy to us, made a similar amount. Heisenberg, the #1 team, made more than 800k on algo this round! We still have no idea how he did this, but Kudos to them for figuring out something that no other team could! 
+
+Overall, for manual we played this round **a bit too safe**. While our returns were solid, we left potential profits on the table by not being aggressive enough in our allocations. Additionally, it turned out that **player behavior had a major impact** on price movements — some products (like Red Flags) moved far more than historical data suggested, likely due to heavy player sentiment. While it wasn’t our strongest manual, we stuck to a disciplined strategy and don’t regret the decision to prioritize **risk management** over gambling for bigger wins.
+
+Chris, after talking with Jasper about his algo on the last round, realized that z-score based strategies on Volcanic rocks performed really well across all days in backtests. Using Jasper's volcanic rock z-score trading logic, and using the same hyperparameters, we were able to make an extra 150k per day by trading volcanic rocks, a product we decided not to trade at all. However, we were still unsure if this was truly an edge-generating strategy or just very lucky, because small tweaks to the hyperparameters or implementation would lead to wildly different backtesting results, some often being very negative in PNL. With the risk-averse approach that we took throughout the competition, we weren't that unhappy about missing this potential edge, as we weren't absolutely convinced that it would work in the long run given static parameters. 
 
 ---
 
 </details>
 
 ## 🏁 Final Thoughts
-Something philosophical
+
+As teammates, we had never spoke with each other before the challange, and were connected through a mutual friend that Chris particiapted with the previous year. After spending many long nights together, often staying up until 6am discussing anything from squid ink price dynamics to the volatility smile of volcanic rocks option chain, we emerged as close friends and top 10 winners of Prosperity 3, even though Chris didn't know Fumble's real name until he made his LinkedIn post.
+
+While we didn't win any money, making the top 10 after having our rank change more than squid ink would in a day is something that we are proud of. We did make a few small mistakes which ended up costing us what we believe would have been a top 5 global ranking. Regardless, we learned a lot about game theory, options trading and statistical modelling
+and are incredibly thankful to IMC for hosting the challange, the discord moderaters for being very pleasant and providing useful hints, and Jasper for his open source visualization, backtester, and leaderboard. 
+
