@@ -1,4 +1,7 @@
-<img src="images/tUzNeX.gif" width="1200"/>
+<div align="center">
+  <img src="images/tUzNeX.gif" width="600"/>
+</div>
+
 <img src="images/island_photo.png" width="1200"/>
 
 
