@@ -235,7 +235,7 @@ Overall though, this round was absolutely brutal for us as **we fell from 7th to
   
 - Chris then realized we had completely missed an extremely profitable trading strategy on volcanic vouchers. Our quadratic fit for implied volatility stopped being a good model on the submission day — it either severely under- or overestimated the IV the market was trading at. As a result, our trader would enter into a long or short IV position on a voucher and hold it all day. While IV did spike, the corresponding seashell gain was small, so we made almost nothing from volcanic rocks using the fitted model. In the figure below, Chris plotted the IV for bids and asks across different vouchers over time, along with a short rolling window of the mid IV. Using the mean of this rolling window instead of the quadratic fit as the fair IV model made our backtester PNL shoot up from 80k to 200k per day — even on the day of submission.
 
-<img src="images/fitted.png" width="800"/>
+<img src="images/quadratic.png" width="800"/>
 <img src="images/mid_iv.png" width="800"/>
 
 - Chris also ran some backtests to figure out how much our hedging was costing us. Since the order book for volcanic rock had a consistent spread of 1, every buy or sell effectively cost us 0.5 seashells. By counting the total trades taken while hedging, Chris found we were paying over 40k in spread costs just to hedge. This gave us the idea that we might not want to hedge at all.
