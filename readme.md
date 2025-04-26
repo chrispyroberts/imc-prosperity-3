@@ -50,7 +50,11 @@ Then came Squid Ink, which was basically trading meme-coins, with consistent 100
 
 <h3>Manual</h3>
 
-See [Leetcode 3387. Maximize Amount After Two Days of Conversions](https://leetcode.com/problems/maximize-amount-after-two-days-of-conversions/description/) 
+This manual was pretty simple, it was a currency exchange problem were it was possible to exchange currencies in a way to profit of of it.
+
+See [Leetcode 3387. Maximize Amount After Two Days of Conversions](https://leetcode.com/problems/maximize-amount-after-two-days-of-conversions/description/) 😂.
+
+Seriously though, this was a relativley trivial manual and all we had to do was a breadth first search across all possible currency conversions.
 
 <h3>Results and Post-Round Analysis</h3>
 
@@ -83,10 +87,36 @@ We found that for squid ink and croissants was clear that at the high and low of
 
 <h3>Manual</h3>
 
-BLAH BLAH BLAH
+This round’s manual was particularly interesting: we had the choice of selecting up to two out of ten available shipping containers, each with different **multipliers** and **inhabitants**. The key mechanic was that your profit from a container depended not just on the container’s treasure multiplier, but also on how many other players chose the same one:
+
+> **PNL = (10,000 × Multiplier) / (Number of inhabitants + % of total selections that picked this container)**
+
+The first container choice was free, but opening a second cost **50,000 SeaShells**.
+
+We realized fairly early on that this wasn’t just a math problem; it was about simulating player behavior. Containers that were underselected would naturally end up with a higher expected value (EV) than those that looked good initially. At first, we tried writing a basic Monte Carlo simulation where agents simply picked the two containers with the highest immediate EV. This rough model didn’t converge well and ended up giving confusing, unreliable numbers. Looking back, this was the right idea but just poorly executed and didn't have the right goal in mind.
+
+We came up with the idea of estimating the **Nash equilibrium** across the crates, using a similiar but simpler greedy Monte Carlo simulation that aimed to predict the base selection rates for each container. 
+
+# TODO ADD PICTURE OF NASH ON CONTAINERS
+
+When we ran the numbers, we found that the Nash equilibrium values for the containers were consistently **below 50,000 SeaShells**, meaning that opening a second container would almost always be a losing play. From this point on, we decided to only focus on selecting **one container**, believing that hedging across two was too risky given the low payouts.
+
+On top of the Nash equilibrium strategy, we built a set of **priors** based on how we thought players would actually behave, the goal with these assumptions was to try and price in how people might act (beyond just following the nash). These alternative strategies ranged a lot from just random selection to phsycolgoical bias (the number 7 & 3 are well-documented to be more 'likeable' to humans and thus picked more frequently when asked to pick a number from 1-10)  Our hypothesis was that:
+
+- 15% of players would play according to Nash equilibrium,
+- 50% would choose randomly,
+- 20% would gravitate toward “nice numbers” (multipliers like 73, 17, and 37),
+- 10% would misread the prompt and simply pick based on initial EV,
+- and 5% would follow the flawed Monte Carlo strategy we had initially come up with.
+
+We re-ran a new Monte Carlo simulation based on these priors and recalculated the EVs of all the containers, aiming to account for both rational and irrational human actors. Ultiamtely we chose to only pick the 80x crate (this was a bad idea).
+
+# TODO ADD PICTURE OF UPDATED MONTE CARLO
+
 
 <h3>Results and Post-Round Analysis</h3>
 
+Looking back, we definitely **underestimated** how many players would stick close to Nash equilibrium, and **overestimated** the randomness in player behavior. Additionally, our simulation didn’t properly prioritize the impact of the "nice numbers" category, which led us to overweight the chances of truly random selections. Our misjudgments here probably contributed the most to our low overall ranking in the manual component of the tournament. However, it wasn't a total loss — we took the lessons from this round, updated our priors accordingly, and built a much stronger player modeling system for future decision-based rounds.
 
 Once again, these results were quite controversial. Some teams found out that the timestamp in which the bots would trade were exactly the same as the previous year. This meant that teams could predict when buy and sell orders would be filled, and they could take the entire bid/ask of an orderbook out and place their own orders below/above them and have them instnatly be filled, leading to millions in profit per round. This, in our opinion and many others, was unfair and not in the spirit of the challange. While only 2 teams found this (they had millions of seashells at this point), the admins once again decided to disallow this sort of hardcoding, and after reviewing the code of many in the top 25, asked teams who they believed were using this to their advantage to submit versions of their algorithms that did not have this hard coding behavior, ultimately causing them to drop many places on the leaderboard. As for us, we moved up into 7th place with 243,083 seashells, making 102,758 seashells from our algo and 33,087 from the manual.
 
@@ -111,12 +141,44 @@ A few other things we considered this round for algo:
 - Since we could hold up to 400 volcanic rocks, and 200 of any voucher, this meant if we went long 2 different vouchers, in the worst case, we could only completely hedge up to 2 vouchers assuming each had a delta of 1. Since we thought that this could get very complicated very quickly, so decided to cap all vouchers at a position size of 80 so we could guarantee that no matter what we would always be fully hedged. 
 
 <h3>Manual</h3>
-BLAH BLAH BLAH
+In this round, we had to place **two bids** to acquire **Sea Turtles' Flippers**. Each turtle accepted the **lowest bid above their reserve price**, where reserves were **uniformly distributed** between **160–200** and **250–320**.
+
+For the **second bid**, a penalty applied if your offer was **below the average** of all second bids, scaling your profit by:
+
+> $$ p = \left(\frac{320 – \text{average bid}}{320 – \text{your bid}}\right)^3 $$
+
+All acquired Flippers could later be sold for **320 SeaShells** each.
+
+For this manual, we took a more systematic approach from the start. First, we isolated the **one-bid scenario** and ran a Monte Carlo simulation for every possible bid between 160 and 320.  
+*(Insert picture here.)*
+
+From this, we found that if we were limited to only one bid, it was clearly optimal to set it at **200** — just at the cutoff before the dead zone of 200–250.
+
+Next, we tackled the **two-bid scenario**, initially **ignoring** the impact of the *p* scaling (i.e., assuming no penalty for being under the average second bid). We ran another Monte Carlo simulation where the **first bid** was fixed at **200**, and the **second bid** varied across the full range from 160 to 320.  
+*(Insert picture here.)*
+
+At this point, it became clear that **picking 285 for the second bid** was the Nash Equilibrium: if all players played optimally (GTO), they would pick **200** first and **~285** second, ensuring their second bid was just above the reserve range and staying above the average.
+
+However, we realized that some players might attempt to **undercut** the average slightly — placing their second bids just above 285 to exploit players who bid exactly at Nash, thereby pushing their bids below the average and subjecting them to the *p* scaling penalty.
+
+To account for this, we built a new set of **priors**, this time using **continuous probability distributions** rather than discrete categories (since bids could be any number within the range). Our assumptions were:
+
+- **10%** of players would play perfect Nash,
+- **25%** would concentrate around the optimal mid-point (tight Nash cluster),
+- **49%** would pick values **slightly higher than the GTO price**,
+- **1%** would pick completely randomly,
+- **15%** would intentionally grief (e.g., bots setting bids at 160 or 320 to skew the distribution, as discussed in Discord).
+
+*(Insert distribution image here.)*
+
+We then modeled these priors and re-simulated outcomes, finding that the **optimal second bid** was approximately **290** — slightly higher than the GTO point to hedge against players trying to outmaneuver Nash bidders.
 
 <br>
 
 <h3>Results and Post-Round Analyysis</h3>
-This round was absolutely brutal for us as we fell from 7th to 241st, making us all believe that a comeback was impossible. We only made 75,755 on algo and 53,430 on manual, while many of the top teams made >200k on algo. We knew either something was wrong or we had missed something.
+Ultimately, we were quite happy with how this manual turned out. The **actual average** second bid ended up being around **286**, slightly higher than pure GTO but very much in line with our expectations. Looking at the resulting graphs, it was clear that most players aimed for Nash or slightly above it, confirming that our modeling approach and priors were pretty spot-on.
+
+Overall though, this round was absolutely brutal for us as we fell from 7th to 241st, making us all believe that a comeback was impossible. We only made 75,755 on algo and 53,430 on manual, while many of the top teams made >200k on algo. We knew either something was wrong or we had missed something.
 
 - We first realized Jasper's visualizer, which we were using extensively, was having some issue where it would cause the algorithm on submission to use more than 100mb of memory, causing the instance to reboot. This meant all local variables that the algorithm was using to trade would be wiped and re-initialized. This was a problem for our rolling windows containing short-term price movements important for trade entries and hedges on basket and volcanic rock products, causing our trader to effectively buy and sell these products randomly. In future submissions, we decided to remove Jasper's visualizer on our final submission to avoid this issue rather than debug it. 
 
@@ -140,11 +202,44 @@ Thoughts going in
 BLAH BLAH BLAH
 <h3>Manual</h3>
 
-BLAH BLAH BLAH
+In this round, players could open up to **three suitcases** containing prizes. Opening one suitcase was free, but opening a second or third required paying a fixed cost. 
+
+Each suitcase had a **prize multiplier** (up to 100) and a known number of **inhabitants** already selecting it. Profit was calculated as:
+
+> **Profit = (10,000 × Multiplier) ÷ (Number of inhabitants + % of global suitcase selections)**
+
+Costs for opening additional suitcases applied after this division, making careful suitcase selection critical.
+
+This challenge was nearly identical to Round 2, giving us a shot at redemption. We started strong by immediately calculating the **Nash equilibrium** across all suitcases.  
+*(Insert Nash picture here.)*
+
+Since the Nash EV was **greater than 50,000** (the cost of opening a second suitcase), we determined it was profitable to **open two suitcases**.
+
+The real challenge came in **modeling human behavior**. Fortunately, players had shared post-analysis from Round 2 on Discord, showing how actual picks compared to Nash predictions.  
+*(Insert selection vs. Nash image here.)*
+
+The findings were surprising:
+- **Way more players** picked close to Nash than we had expected.
+- There was **massive buy pressure** on "nice numbers" like **17** and **73**, confirming our human psychology prior.
+- Minor deviations elsewhere seemed due to random noise.
+
+Based on this, we simplified and updated our priors:
+- **50–60%** of players would pick according to Nash distribution.
+- **5–15%** would concentrate on the most selected parts of Nash.
+- **5–10%** would favor the least selected parts (based on over-correcting from last round’s profitable crates).
+- **10–15%** would pick randomly.
+- **10–15%** would favor "nice numbers" based on human psychology.
+
+Rather than running another Monte Carlo simulation (since this was a discrete problem), we created a **probability distribution** directly across all suitcases. We multiplied base Nash probabilities by the expected deviations from our priors to estimate suitcase popularity mathematically.  
+*(Insert probability distribution picture.)*  
+*(Insert predicted density sorted by EV picture.)*
+
+Using this model, we selected **suitcases 83 and 47** as our picks.
 
 <br>
 
-Results
+This manual went **extremely well** for us. While we didn’t absolutely maximize profits, our approach paid off — our predicted densities were **very close to the actual results**, leading to strong EV predictions and a solid gain in ranking.  
+*(Insert predicted vs actual densities/EVs picture.)*
 
 ---
 
@@ -161,11 +256,34 @@ Thoughts going in
 BLAH BLAH BLAH
 <h3>Manual</h3>
 
-BLAH BLAH BLAH
+For this round, we had to trade on 9 different products and derive sentiments from the 'goldberg' terminal. Trading was not only influenced by **sentiment**, but also incurred increasing **fees** based on how much of each product was purchased:
+
+> **Fee(x) = 120 × x²**, where *x* is the portfolio allocation fraction.
+
+This made optimizing both **selection** and **sizing** critical to maximize profits.
+
+At first, this round seemed purely **vibe-based**. However, after some thought, we realized it was actually a **portfolio optimization** problem in disguise.
+
+The first step was to generate **priors** for how each product's price might move.  
+Luckily, we found data online from previous years, and noticed that the tradeable products were almost **identical** to those offered this year. This allowed us to **map historical returns** onto current products. 
+
+However, the instructions were vague — it was unclear whether price movements were **purely player-driven** or **predetermined**. To be cautious:
+- We **adjusted** last year’s return data slightly based on **sentiment from Discord** and our **own intuition**.
+- We used historical data mostly to **estimate the range of possible movements** rather than directly copying past results.
+
+Once we had reasonable return estimates, we tackled the portfolio allocation. With **9 products** and the **quadratic fee structure**, it was clear that naive brute-force (e.g., a grid search) would be computationally impossible.
+
+Instead, we used **convex optimization** (`cvxpy`) to solve for the **optimal portfolio allocation**, maximizing expected returns while minimizing fee penalties.
+# TODO ADD IMAGE OF THE IPYNB TRACE
+
+We also decided to **tone down** the allocation weights slightly for higher-risk products to **mitigate the chance of getting burned** if our return estimates were wrong.
+
 
 <br>
 
-Results
+Overall, for manual we played this round **a bit too safe**. While our returns were solid, we left potential profits on the table by not being aggressive enough in our allocations. Additionally, it turned out that **player behavior had a major impact** on price movements — some products (like Red Flags) moved far more than historical data suggested, likely due to heavy player sentiment.
+
+While it wasn’t our strongest manual, we stuck to a disciplined strategy and don’t regret the decision to prioritize **risk management** over gambling for bigger wins.
 
 ---
 
