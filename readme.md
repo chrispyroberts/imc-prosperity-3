@@ -6,9 +6,11 @@ This repo documents our research, strategy development and tools for **Prosperit
 
 ## 📜 What is Prosperity?
 
-Prosperity is a 15-day long trading competition where players earn "seashells" to grow their "archipelago" in 5 rounds (each 3 days long). Each round new products are introduced that each have their own unique properties resembling real world tradable assets; you can always trade products from previous rounds so it's a game of finding alpha and optimizing previous strategies. To trade these products we researched the products (using provided sample data) then wrote and submitted a python file that performed systematic trades. Every round also had a manual trading aspect to it these challenges were typically centered around game theory decisions and had us playing around other participants' choices. 
+Prosperity is a 15-day trading competition where players earn "seashells" to grow their "archipelago" across 5 rounds (each lasting 3 days). Each round introduces new products with unique properties resembling real-world assets; products from previous rounds remain tradable, making it a game of finding alpha and optimizing strategies.
 
-At the end of each round, the algorithmic trading scripts and manual trading challenges were evaluated and added to our islands' PNL.
+We researched each product using sample data, then wrote and submitted Python scripts to perform systematic trades. Each round also included a manual trading challenge, typically centered around game theory and predicting other participants' decisions.
+
+At the end of each round, both algorithmic and manual results were combined into our island's PNL.
 
 [Prosperity 3 Wiki](https://imc-prosperity.notion.site/Prosperity-3-Wiki-19ee8453a09380529731c4e6fb697ea4)
 
@@ -26,15 +28,16 @@ At the end of each round, the algorithmic trading scripts and manual trading cha
 <br>
 
 ## 🗂 Repo Structure
-Our code is split into the rounds that they were built for, all of the EDA, research, manual, and trader code is located within them.
+Each round has its own folder, containing all our EDA, research, manual trading solutions, and algorithmic strategies.
 
-Good luck parsing it, things got a little scrappy near the end...
+It started out organized... then the 4 a.m. coding sessions happened. Good luck!
 
 <br>
 
 ## 🧠 What you're probably here for
 
-Below are descriptions for both our algorithmic and manual trading strategies. We tried to play things safe and focused on market neutral strategies (straight line pnl)
+Here’s a breakdown of our algorithmic and manual strategies. Our overall approach focused on market-neutral plays (straight-line PNL, no crazy bets).
+
 <details>
 <summary><h2>Round 1</h2></summary>
   
@@ -42,11 +45,13 @@ Below are descriptions for both our algorithmic and manual trading strategies. W
 
 Round 1 introduced 3 new products: Rainforest Resin, Kelp, and Squid Ink. All of these products were relatively distinct but traded like stocks would in the real world -- nothing fancy just an order book and market price.
 
-Rainforest Resin was by far the easiest product to trade, and probably one of the most consistently profitable across the entire competition. The sample data revealed that the fair value hovered exactly around 10,000 seashells, with almost no drift and extremely low volatility (typically deviating by no more than ±4 seashells). Market taking was straightforward: any time there was a bid above 10,000 or an ask below 10,000, we would immediately execute against it. On top of that, the order book had relatively wide spreads, which opened up market making opportunities by posting liquidity just inside the standing bids and asks. One thing we noticed was that there were often bids and asks in the order book at exactly the fair value. We used these orders to our advantage by checking if taking them would reduce our overall position and better balancing our market making and taking position. This small addition boosted our PNL performance quite a bit as often we were fully long or fully short Resin due to the volume of orders.
+Round 1 introduced three new products: Rainforest Resin, Kelp, and Squid Ink — all traded like real-world stocks with basic order books and market prices.
 
-Kelp was a little more complicated. It displayed some mild price drift and a small but noticeable amount of volatility, making it dangerous to blindly market take at a fixed value. We noticed that there was another market maker always present in the order book, and found that on submission to the website our PNL was calculated based on the mid price of this market participant. This told us that the fair value at any given moment was the mid-price of their market. We copied our market making stratey from resin using this mechanic as the fair value. Because Kelp had such low volatility, often only moving a total of 40 seashells over the course of 10,000 steps, we didn't incoporate any directional aspect as simply market making and taking made so much more.
+- Rainforest Resin was the easiest and most consistent to trade. The fair value hovered around 10,000 seashells with almost no drift ($\pm$4 seashells). We market took anytime bids were above 10,000 or asks below 10,000, and market made inside the spread. Additionally, we exploited standing orders exactly at fair value to better balance our long/short positions, significantly boosting our PNL.
 
-Then came Squid Ink, which was basically trading meme-coins, with consistent 100 seashells swings in a single step and seemingly no clear pattern. The IMC parrot kept hinting that “there’s a pattern if you look closely,” but to be honest, we don't believe any real exploitable structure existed. We tested a variety of strategies, including rolling z-scores, volatility breakouts, and MACD signals, but none offered any consistent edge. Employing the same market making and taking strategy as Kelp and Resin proved useful, since we found the same mechanic present for squid ink as we did for Kelp, but the massive spikes in price that appeared randomly would either instantly double take away any PNL we had made for the day. We decided to take a gamble on this and see what would happen on the submission day. 
+- Kelp was trickier, showing mild drift and volatility. We found a persistent market maker whose mid-price effectively defined the real-time fair value, and confirmed this by submitting an order to buy 1 kelp and holding until the end of the day comparing the final PNL to our buy price. Using this mid-price, we applied the same market making/taking strategy as Resin, without adding any directional bias given the low volatility (~40 seashells over 10,000 steps).
+
+- Squid Ink was pure chaos — with regular 100 seashell swings within a single step and no obvious structure despite IMC’s hints. We tested rolling z-scores, volatility breakouts, and MACD signals without finding any consistent edge. Ultimately, we reused the Kelp/Resin strategy here, but due to random massive price spikes, PNL was extremely volatile. We chose to gamble and submit as-is for Round 1.
 
 <h3>Manual</h3>
   
@@ -60,9 +65,17 @@ See [Leetcode 3387. Maximize Amount After Two Days of Conversions](https://leetc
 
 <h3>Results and Post-Round Analysis</h3>
 
-First round results were kind of controversial, it was kind of obvious that the round 1 data on the website was actual price history for the first 1000 timestamps on day 1 (instead of 1000 time stamps from previous test days) so a bunch of people ended up hardcoding in their trades on the first 1000 timestamps. This combined with squid ink spiking in the opposite direction as our market making position, meant we actually lost seashells off squid ink and ended up in 771'st place. However, the round was re-run due to the hard-coding being considered cheating and we shot up to 9th place with a total PNL of 107,237 seashells (43,243 algo + 44,340 manual). We got incredibly lucky on the re-run because squid ink spiked in our favor rather than agaisnt it.  The top 3 teams seemed to figure something out that nobody else could and were ~100k seashells ahead of everyone else, but between us and 4th place was only a couple thousand seashells. 
+First-round results were controversial. It became clear the website’s "sample data" was actually the first 1000 timestamps of live day 1 data, allowing teams to hardcode trades. Combined with Squid Ink spiking against our market making position, we initially finished 771st.
 
-After the round we decided it was too volatile to keep trading squid ink using our current strategy, and adapted it to do market making and taking but only with 10% of our total position allocated at any given moment. This reduced the total PNL made from market making and taking on squid ink by around 50%, but to make up for this, we added in a spike detection indicator, with the hypothesis that the moment price spikes, it will quickly mean-revert. This made our PNL across all days for squid-ink much more stable. For our spike detection algorithm, we used a small window rolling standard deviation on price difference, and when this standard deviation was larger than 20, we would fully enter into the opposite direction price just moved.
+After the round was re-run (hardcoding was ruled cheating), we shot up to 9th place with a total PNL of 107,237 seashells (43,243 algo + 44,340 manual). We got lucky on the re-run — Squid Ink spiked in our favor instead of against us. The top 3 teams still finished ~100k seashells ahead of everyone else, but we were within a few thousand seashells of 4th.
+
+Afterward, we decided Squid Ink was too volatile for full-size market making. We adapted by only allocating 10% of our position to it, cutting PNL by about 50%, but added a spike detection system:
+
+- We used a rolling standard deviation on price differences.
+
+- If the rolling std > 20, we fully entered a position opposite to the recent price move.
+
+This adjustment made Squid Ink PNL much more stable across all days.
 
 ![](images/squid_ink.png)
 
@@ -75,13 +88,42 @@ After the round we decided it was too volatile to keep trading squid ink using o
 <summary><h2>Round 2</h2></summary>
   
 <h3>Algo</h3>
-Round two introduced new products: CROISSANTS, JAMS, DJEMBES, PICNIC_BASKET1 and PICNIC_BASKET2. Specifically, PICNIC_BASKET1 is said to contain 6 CROISSANTS, 3 JAMS and 1 DJEMBE and PICNIC_BASKET2 contains 4 CROISSANTS and 2 JAMS. We quickly realized these products were similar to previous years. We visualized the difference in price between each basket and it's constituents and plotted it to look for any interesting behaviors. The basket premiums looked like they were mean-reverting, and so we used the hard-coded mean of the bottle data with a short rolling window for standard deviation to calculate rolling z-scores, and would enter into short positions on a basket and long the underlying when the z-score went above 20 and long positions on baskets and short the underlying when the z-score dropped below -20. By hedging our position, we could isolate the basket premium and directly trade it.
+Round 2 introduced new products: **CROISSANTS**, **JAMS**, **DJEMBES**, **PICNIC_BASKET1**, and **PICNIC_BASKET2**.
+
+- **PICNIC_BASKET1** contained 6 Croissants, 3 Jams, and 1 Djembe.
+
+- **PICNIC_BASKET2** contained 4 Croissants and 2 Jams.
+
+We recognized the structure from previous years and analyzed the price difference between each basket and its components. The basket premiums appeared mean-reverting, so we hard-coded the mean from bottle data, used a short rolling window for standard deviation, and calculated rolling z-scores:
+
+- When z-score > 20, we shorted the basket and longed the constituents.
+
+- When z-score < -20, we did the opposite.
+
+This hedging isolated and traded the basket premium directly.
 
 ![](images/basket_premiums.png)
 
-One key part of this round was position sizing. Position limits on the products would not allow us to go long on both baskets at the same time while maintaining a perfect hedge. To make up for this, we decided to trade the difference between the premium in the baskets. That is, when our calculated z-score on the difference in premium between basket 1 and 2 was above 20, we would short basket 1, long basket 2, and then hedge accordingly. This trading strategy used 100% of our position limits for basket 1, but only 60% of out position limit on basket 2. Position limits on the underlying did not allow us to use the full remaining 40% while maintaining a perfect hedge, only 32%, so we traded the strategy on basket 2 using this capped position size, leaving us with 8% position size left over. Rather than let this position size go to waste not not utilize it, we noticed that there was a consistent spread of ~7 in the orderbook for basket 2, and ~10 for basket 1. We decided to market make using a maximum position size of 8%, leaving our total position utilization at 100%. While the unhedged market making position could potentially lose us some shells, over backtests it consistently provided 5k extra seashells per day with minimal swings due to directional moves.
+We ran into a problem with this though. The position limits prevented fully hedging both baskets simultaneously. To fix this, we did a few things
 
-There were a few other things that we tried. Chris, who had done the trading challange the previous year and placed 15th, had a suspicion that round 5 was going to be extremely similar to the previous year. Last year, there were bots that would send trade orders on certain products at exactly the top and bottom of the day, so he hypothesized that somewhere in the orderbook on certain timestamps, there would be a signal indicating that the current price is the highest/lowest of the day. 
+- We focused on the difference in basket premiums between Basket 1 and Basket 2.
+
+- When the z-score of (Basket1 premium - Basket2 premium) > 20:
+
+- Short Basket 1, Long Basket 2, then hedge with components accordingly.
+
+Using this strategy used the following of our position limits:
+
+- 100% of Basket 1’s position limit,
+
+- 60% of Basket 2’s limit.
+
+We did z-score trading with the remaining 40% of position limit on Basket 2, but had to limit it to 32% because we couldn't perfectly hedge due to position limits on the constituents. The remaining 8% of Basket 2’s position limit was unused — so we deployed it by market making (taking advantage of ~7–10 seashell spreads).
+
+Overall, this strategy allowed us to fully utilize 100% of allowed position limits while minimizing unhedged risk.
+Market making with the leftover 8% added ~5k seashells/day in backtests with very low volatility.
+
+Chris also spotted suspicious trade quantity 15 patterns at highs/lows for Squid Ink and Croissants — hinting at potential price signals. However, it was too late to build a reliable strategy around them, so we planned to revisit this idea in Round 5.
 
 ![](images/squid_ink_trades.png)
 
