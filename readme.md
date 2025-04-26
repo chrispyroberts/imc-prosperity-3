@@ -204,7 +204,7 @@ BLAH BLAH BLAH
 <br>
 
 <h3>Results & Post-Round Analysis</h3>
-We finished 7th! and #1 in the US!!! We we really happy with this result. Our algo made 244,740 seashells and we made 138,274 on manual. Frankfurt, who we knew with high probability had a very similar strategy to us, made a similar amount. Heisenberg, the #1 team, made more than 800k on algo this round! We still have no idea how he did this, but Kudos to them for figuring out something that no other team could! 
+We finished 7th! and 1st in the US! We we really happy with this result. Our algo made 244,740 seashells and we made 138,274 on manual. Frankfurt, who we knew with high probability had a very similar strategy to us, made a similar amount. Heisenberg, the #1 team, made more than 800k on algo this round! We still have no idea how he did this, but Kudos to them for figuring out something that no other team could! 
 
 Chris, after talking with Jasper about his algo on the last round, realized that z-score based strategies on Volcanic rocks performed really well across all days in backtests. Using Jasper's volcanic rock z-score trading logic, and using the same hyperparameters, we were able to make an extra 150k per day by trading volcanic rocks, a product we decided not to trade at all. However, we were still unsure if this was truly an edge-generating strategy or just very lucky, because small tweaks to the hyperparameters or implementation would lead to wildly different backtesting results, some often being very negative in PNL. 
 
@@ -213,4 +213,9 @@ Chris, after talking with Jasper about his algo on the last round, realized that
 </details>
 
 ## 🏁 Final Thoughts
-Something philosophical
+
+Safe to say we spent many long nights together on discord, often staying up until 6am discussing the mechanics of squid ink and the implied volatilities of the volcanic rock options chain.  
+
+While we didn't win any money, making the top 10 after having our rank change more than squid ink would in a day is something that we are proud of. We did make a few small mistakes which ended up costing us what we believe would have been a top 5 global ranking. Regardless, we learned a lot about game theory, options trading and statistical modelling
+and are incredibly thankful to IMC for hosting the challange, the discord moderaters for being very pleasant and providing useful hints, and Jasper for his open source visualization, backtester, and leaderboard. 
+
