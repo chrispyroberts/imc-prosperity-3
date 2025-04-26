@@ -53,7 +53,7 @@ Round 1 introduced 3 new products: Rainforest Resin, Kelp, and Squid Ink. All of
 
 Round 1 introduced three new products: Rainforest Resin, Kelp, and Squid Ink — all traded like real-world stocks with basic order books and market prices.
 
-- Rainforest Resin was the easiest and most consistent to trade. The fair value hovered around 10,000 seashells with almost no drift ($\pm$4 seashells). We market took anytime bids were above 10,000 or asks below 10,000, and market made inside the spread. Additionally, we exploited standing orders exactly at fair value to better balance our long/short positions, significantly boosting our PNL.
+- Rainforest Resin was the easiest and most consistent to trade. The fair value hovered around 10,000 seashells with almost no drift (+/-4 seashells). We market took anytime bids were above 10,000 or asks below 10,000, and market made inside the spread. Additionally, we exploited standing orders exactly at fair value to better balance our long/short positions, significantly boosting our PNL.
 
 - Kelp was trickier, showing mild drift and volatility. We found a persistent market maker whose mid-price effectively defined the real-time fair value, and confirmed this by submitting an order to buy 1 kelp and holding until the end of the day comparing the final PNL to our buy price. Using this mid-price, we applied the same market making/taking strategy as Resin, without adding any directional bias given the low volatility (~40 seashells over 10,000 steps).
 
