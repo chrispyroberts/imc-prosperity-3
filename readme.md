@@ -1,8 +1,11 @@
 
 ![](images/tUzNeX.gif)
 
+
+
 ![](images/island_photo.png)
 
+<img src="images/tUzNeX.gif" width="900"/>
 <img src="images/island_photo.png" width="900"/>
 
 
