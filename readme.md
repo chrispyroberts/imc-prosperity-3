@@ -214,7 +214,7 @@ Chris, after talking with Jasper about his algo on the last round, realized that
 
 ## 🏁 Final Thoughts
 
-Safe to say we spent many long nights together on discord. We would often staying up until 6am and discuss the mechanics of squid ink, the volatility smile of the volcanic rock options chain or praising Olivia for providing us with true alpha on Croissants.
+Safe to say we spent many long nights together on discord. We would often staying up until 6am and discuss the mechanics of squid ink and the volatility smile of the volcanic rock options chain while praising Olivia for providing us with true alpha on Croissants.
 
 While we didn't win any money, making the top 10 after having our rank change more than squid ink would in a day is something that we are proud of. We did make a few small mistakes which ended up costing us what we believe would have been a top 5 global ranking. Regardless, we learned a lot about game theory, options trading and statistical modelling
 and are incredibly thankful to IMC for hosting the challange, the discord moderaters for being very pleasant and providing useful hints, and Jasper for his open source visualization, backtester, and leaderboard. 
