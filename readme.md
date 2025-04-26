@@ -1,6 +1,8 @@
 
 ![](images/tUzNeX.gif)
 
+![](imgages/final_photo.png)
+
 # CMU Physics 🐚🐚🐚 
 This repo documents our research, strategy development and tools for **Prosperity 3 (2025)**, with ~12,000 teams we finished 7th Globally & 1st USA.
 
