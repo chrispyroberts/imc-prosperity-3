@@ -327,7 +327,9 @@ By adjusting to sell up to 30 Macrons at a time instead of 10, we traded 95,000 
 <h3>Algo</h3>
 This round no new products were introduced. Instead, we were told the counterparties that we were trading agaisnt. Specifically, there were 11 other bots trading the same products we were. We started by visualizing all trading activity for all the bots, and plotted products prices and overlayed a scatter plot with the prices bots would trade at. We did this for all bots and all products, and quickly found that one bot, 'Olivia', would buy/sell and the low/high of the day every day on 3 different products.
 
+
 ![](images/olivia_signal.png)
+
 
 Chris had correctly guessed that the trades present in round 2 data did indeed have a true signal. Using this information, we planned to update our algorithms to copy Olivia's trades.
 
