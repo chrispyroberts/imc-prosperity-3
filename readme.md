@@ -238,13 +238,9 @@ Overall though, this round was absolutely brutal for us as **we fell from 7th to
 <img src="images/fitted.png" width="800"/>
 <img src="images/mid_iv.png" width="800"/>
 
-
 - Chris also ran some backtests to figure out how much our hedging was costing us. Since the order book for volcanic rock had a consistent spread of 1, every buy or sell effectively cost us 0.5 seashells. By counting the total trades taken while hedging, Chris found we were paying over 40k in spread costs just to hedge. This gave us the idea that we might not want to hedge at all.
 
 - Chris estimated an upper bound for how much we could lose by being unhedged. At one point, volcanic rocks moved by 100 seashells in a single step, which — assuming a delta of 1 — would correspond to a maximum loss of 40k if holding 400 vouchers, which if we were long all 5 vouchers would be a loss of 200k in one step. Chris tracked our average delta exposure throughout the day and found it was closer to being long 160 units of the underlying, meaning the 200k estimate was very conservative. A more realistic maximum loss would be around 16k in a single step. Given that price movements appeared random (at least to us), and the potential upside from not hedging was greater than our realistic downside risk (40k > 16k), we decided that going unhedged was a risk worth taking. This boosted our backtester PNL on volcanic rock products to around 250k per day.
-
-![](images/rocks.png)
-
 
 </details>
 
