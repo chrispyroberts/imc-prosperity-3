@@ -1,6 +1,5 @@
 
-
-
+![](images/tUzNeX.gif)
 
 # CMU Physics 🐚🐚🐚 
 This repo documents our research, strategy development and tools for **Prosperity 3 (2025)**, with ~12,000 teams we finished 7th Globally & 1st USA.
@@ -40,8 +39,6 @@ It started out organized... then the 4 a.m. coding sessions happened. Good luck!
 ## 🧠 What you're probably here for
 
 Here’s a breakdown of our algorithmic and manual strategies. Our overall approach focused on market-neutral plays (straight-line PNL, no crazy bets).
-
-![](tUzNeX.gif)
 
 <details>
 <summary><h2>Round 1</h2></summary>
