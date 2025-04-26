@@ -406,5 +406,5 @@ As teammates, we had never spoken with each other before the challenge and were 
 
 While we didn’t win any money, making the top 10 — after having our rank swing more than Squid Ink prices would in a day — is something we’re really proud of. We made a few small mistakes that likely cost us what could have been a top 5 global finish. Regardless, we learned a lot about game theory, options trading, and statistical modeling, and we’re incredibly thankful to IMC for hosting the challenge, the Discord moderators for being so helpful and providing great hints, and Jasper for his open-source visualization tool, backtester, and leaderboard. 
 
-We will definetly be back next year.
+We will definitely be back next year.
 
