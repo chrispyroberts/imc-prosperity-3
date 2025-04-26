@@ -3,7 +3,7 @@
 
 ![](images/island_photo.png)
 
-<img src="images/island_photo.png" width="400"/>
+<img src="images/island_photo.png" width="900"/>
 
 
 # CMU Physics 🐚🐚🐚 
