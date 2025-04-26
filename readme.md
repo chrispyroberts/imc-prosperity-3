@@ -195,7 +195,7 @@ In this round, we had to place **two bids** to acquire **Sea Turtles' Flippers**
 
 For the second bid, a penalty applied if your offer was below the average of all second bids, scaling your profit by:
 
-> $$ p = \left(\frac{320 – \text{average bid}}{320 – \text{your bid}}\right)^3 $$
+> p = \left(\frac{320 – \text{average bid}}{320 – \text{your bid}}\right)^3 
 
 All acquired Flippers could later be sold for 320 SeaShells each.
 
