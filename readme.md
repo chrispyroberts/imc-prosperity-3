@@ -67,7 +67,7 @@ See [Leetcode 3387. Maximize Amount After Two Days of Conversions](https://leetc
 
 <h3>Results and Post-Round Analysis</h3>
 
-<img src="images/round_1.gif" width="300"/>
+<img src="images/round_1.gif" width="500"/>
 
 First-round results were controversial. It became clear the website’s "sample data" was actually the first 1000 timestamps of live day 1 data, allowing teams to hardcode trades. Combined with Squid Ink spiking against our market making position, **we initially finished 771st.**
 
@@ -155,7 +155,7 @@ We re-ran a new Monte Carlo simulation based on these priors and recalculated th
 
 <h3>Results and Post-Round Analysis</h3>
 
-<img src="images/round_2.gif" width="300"/>
+<img src="images/round_2.gif" width="500"/>
 
 Once again, the results were quite controversial. Some teams discovered that the timestamps when bots would trade were exactly the same as the previous year. This meant teams could predict when buy and sell orders would be filled, allowing them to wipe out the entire bid/ask side of an order book, place their own orders above or below, and have them instantly filled — leading to millions in profit per round.
 
@@ -228,7 +228,7 @@ We then modeled these priors and re-simulated outcomes, finding that the **optim
 
 <h3>Results and Post-Round Analyysis</h3>
 
-<img src="images/round_3.gif" width="300"/>
+<img src="images/round_3.gif" width="500"/>
 
 The manual of this roudn turned out not so decent. The actual average second bid ended up being around 286, slightly higher than pure GTO but very much in line with our expectations. Looking at the resulting graphs, it was clear that most players aimed for Nash or slightly above it, confirming that our modeling approach and priors were pretty spot-on.
 
@@ -310,7 +310,7 @@ Using this model, we selected suitcases 83 and 47 as our picks.
 
 <h3>Results and Post-Round Analysis</h3>
 
-<img src="images/round_4.gif" width="300"/>
+<img src="images/round_4.gif" width="500"/>
 
 ![](images/round_4_res.png)
 
@@ -398,7 +398,7 @@ We also decided to tone down the allocation weights slightly for higher-risk pro
 
 <h3>Results & Post-Round Analysis</h3>
 
-<img src="images/round_5.gif" width="300"/>
+<img src="images/round_5.gif" width="500"/>
 
 **We finished 7th overall — and 1st in the US!** We were really happy with this result. Our algo made 244,740 seashells, and we made 138,274 on manual. Frankfurt, who we knew with high probability had a very similar strategy to us, made a comparable amount. Meanwhile, Heisenberg — the #1 team — made more than 800k on algo this round! We still have no idea how they pulled that off, but kudos to them for figuring out something that no one else could!
 
