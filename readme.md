@@ -214,7 +214,7 @@ Chris, after talking with Jasper about his algo on the last round, realized that
 
 ## 🏁 Final Thoughts
 
-As teammates, we were acquaintances with each other, having been connected through a mutual friend that Chris particiapted with the previous year. After spending many long nights together, often staying up until 6am discussing anything from squid ink price dynamics to the volatility smile of volcanic rocks option chain, we emerged as close friends and top 10 winners of Prosperity 3.
+As teammates, we had never spoke with each other before the challange, and were connected through a mutual friend that Chris particiapted with the previous year. After spending many long nights together, often staying up until 6am discussing anything from squid ink price dynamics to the volatility smile of volcanic rocks option chain, we emerged as close friends and top 10 winners of Prosperity 3, even though Chris didn't know Fumble's real name until he made his LinkedIn post.
 
 While we didn't win any money, making the top 10 after having our rank change more than squid ink would in a day is something that we are proud of. We did make a few small mistakes which ended up costing us what we believe would have been a top 5 global ranking. Regardless, we learned a lot about game theory, options trading and statistical modelling
 and are incredibly thankful to IMC for hosting the challange, the discord moderaters for being very pleasant and providing useful hints, and Jasper for his open source visualization, backtester, and leaderboard. 
