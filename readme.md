@@ -23,7 +23,7 @@ At the end of each round, both algorithmic and manual results were combined into
 <br>
 
 ## 👥 The Team
-| Chris Roberts | [@chrispyroberts](https://github.com/chrispyroberts) |
+| Chris Roberts | [@chrispyroberts](https://github.com/chrispyroberts) | [LinkedIn](https://www.linkedin.com/in/chrisberman/)
 
 | Nirav Koley | [@n-kly](https://github.com/n-kly) |
 
