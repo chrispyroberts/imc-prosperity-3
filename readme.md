@@ -221,7 +221,7 @@ To account for this, we built a new set of priors, this time using continuous pr
 We then modeled these priors and re-simulated outcomes, finding that the optimal second bid was approximately 290 — slightly higher than the GTO point to hedge against players trying to outmaneuver Nash bidders.
 <br>
 
-<h3>Results and Post-Round Analyysis</h3>
+<h3>Results and Post-Round Analysis</h3>
 
 <img src="images/round_3.gif" width="500"/>
 
