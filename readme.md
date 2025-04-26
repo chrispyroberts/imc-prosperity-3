@@ -49,12 +49,14 @@ Kelp was a little more complicated. It displayed some mild price drift and a sma
 Then came Squid Ink, which was basically trading meme-coins, with consistent 100 seashells swings in a single step and seemingly no clear pattern. The IMC parrot kept hinting that “there’s a pattern if you look closely,” but to be honest, we don't believe any real exploitable structure existed. We tested a variety of strategies, including rolling z-scores, volatility breakouts, and MACD signals, but none offered any consistent edge. Employing the same market making and taking strategy as Kelp and Resin proved useful, since we found the same mechanic present for squid ink as we did for Kelp, but the massive spikes in price that appeared randomly would either instantly double take away any PNL we had made for the day. We decided to take a gamble on this and see what would happen on the submission day. 
 
 <h3>Manual</h3>
-
+  
 This manual was pretty simple, it was a currency exchange problem were it was possible to exchange currencies in a way to profit of of it.
 
 See [Leetcode 3387. Maximize Amount After Two Days of Conversions](https://leetcode.com/problems/maximize-amount-after-two-days-of-conversions/description/) 😂.
 
 Seriously though, this was a relativley trivial manual and all we had to do was a breadth first search across all possible currency conversions.
+
+See [Leetcode 3387. Maximize Amount After Two Days of Conversions](https://leetcode.com/problems/maximize-amount-after-two-days-of-conversions/description/) 
 
 <h3>Results and Post-Round Analysis</h3>
 
