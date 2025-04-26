@@ -97,7 +97,7 @@ We realized fairly early on that this wasn’t just a math problem; it was about
 
 We came up with the idea of estimating the **Nash equilibrium** across the crates, using a similiar but simpler greedy Monte Carlo simulation that aimed to predict the base selection rates for each container. 
 
-# TODO ADD PICTURE OF NASH ON CONTAINERS
+![](images/containers_nash.png)
 
 When we ran the numbers, we found that the Nash equilibrium values for the containers were consistently **below 50,000 SeaShells**, meaning that opening a second container would almost always be a losing play. From this point on, we decided to only focus on selecting **one container**, believing that hedging across two was too risky given the low payouts.
 
@@ -111,7 +111,7 @@ On top of the Nash equilibrium strategy, we built a set of **priors** based on h
 
 We re-ran a new Monte Carlo simulation based on these priors and recalculated the EVs of all the containers, aiming to account for both rational and irrational human actors. Ultiamtely we chose to only pick the 80x crate (this was a bad idea).
 
-# TODO ADD PICTURE OF UPDATED MONTE CARLO
+![](images/updated_nash_containers.png)
 
 
 <h3>Results and Post-Round Analysis</h3>
@@ -150,12 +150,12 @@ For the **second bid**, a penalty applied if your offer was **below the average*
 All acquired Flippers could later be sold for **320 SeaShells** each.
 
 For this manual, we took a more systematic approach from the start. First, we isolated the **one-bid scenario** and ran a Monte Carlo simulation for every possible bid between 160 and 320.  
-*(Insert picture here.)*
+![](images/1bid_flippers.png)
 
 From this, we found that if we were limited to only one bid, it was clearly optimal to set it at **200** — just at the cutoff before the dead zone of 200–250.
 
 Next, we tackled the **two-bid scenario**, initially **ignoring** the impact of the *p* scaling (i.e., assuming no penalty for being under the average second bid). We ran another Monte Carlo simulation where the **first bid** was fixed at **200**, and the **second bid** varied across the full range from 160 to 320.  
-*(Insert picture here.)*
+![](images/2bid_flippers.png)
 
 At this point, it became clear that **picking 285 for the second bid** was the Nash Equilibrium: if all players played optimally (GTO), they would pick **200** first and **~285** second, ensuring their second bid was just above the reserve range and staying above the average.
 
@@ -169,7 +169,7 @@ To account for this, we built a new set of **priors**, this time using **continu
 - **1%** would pick completely randomly,
 - **15%** would intentionally grief (e.g., bots setting bids at 160 or 320 to skew the distribution, as discussed in Discord).
 
-*(Insert distribution image here.)*
+![](images/flippers_dist.png)
 
 We then modeled these priors and re-simulated outcomes, finding that the **optimal second bid** was approximately **290** — slightly higher than the GTO point to hedge against players trying to outmaneuver Nash bidders.
 
@@ -177,6 +177,8 @@ We then modeled these priors and re-simulated outcomes, finding that the **optim
 
 <h3>Results and Post-Round Analyysis</h3>
 Ultimately, we were quite happy with how this manual turned out. The **actual average** second bid ended up being around **286**, slightly higher than pure GTO but very much in line with our expectations. Looking at the resulting graphs, it was clear that most players aimed for Nash or slightly above it, confirming that our modeling approach and priors were pretty spot-on.
+
+![](images/flippers_final.png)
 
 Overall though, this round was absolutely brutal for us as we fell from 7th to 241st, making us all believe that a comeback was impossible. We only made 75,755 on algo and 53,430 on manual, while many of the top teams made >200k on algo. We knew either something was wrong or we had missed something.
 
@@ -211,12 +213,12 @@ Each suitcase had a **prize multiplier** (up to 100) and a known number of **inh
 Costs for opening additional suitcases applied after this division, making careful suitcase selection critical.
 
 This challenge was nearly identical to Round 2, giving us a shot at redemption. We started strong by immediately calculating the **Nash equilibrium** across all suitcases.  
-*(Insert Nash picture here.)*
+![](images/cases_nash.png)
 
 Since the Nash EV was **greater than 50,000** (the cost of opening a second suitcase), we determined it was profitable to **open two suitcases**.
 
 The real challenge came in **modeling human behavior**. Fortunately, players had shared post-analysis from Round 2 on Discord, showing how actual picks compared to Nash predictions.  
-*(Insert selection vs. Nash image here.)*
+![](images/containers_real.png)
 
 The findings were surprising:
 - **Way more players** picked close to Nash than we had expected.
@@ -231,8 +233,8 @@ Based on this, we simplified and updated our priors:
 - **10–15%** would favor "nice numbers" based on human psychology.
 
 Rather than running another Monte Carlo simulation (since this was a discrete problem), we created a **probability distribution** directly across all suitcases. We multiplied base Nash probabilities by the expected deviations from our priors to estimate suitcase popularity mathematically.  
-*(Insert probability distribution picture.)*  
-*(Insert predicted density sorted by EV picture.)*
+![](images/cases_dist.png) 
+![](images/cases_predicted.png) 
 
 Using this model, we selected **suitcases 83 and 47** as our picks.
 
@@ -270,11 +272,12 @@ Luckily, we found data online from previous years, and noticed that the tradeabl
 However, the instructions were vague — it was unclear whether price movements were **purely player-driven** or **predetermined**. To be cautious:
 - We **adjusted** last year’s return data slightly based on **sentiment from Discord** and our **own intuition**.
 - We used historical data mostly to **estimate the range of possible movements** rather than directly copying past results.
+![](images/goldberg_sentiments.png) 
 
 Once we had reasonable return estimates, we tackled the portfolio allocation. With **9 products** and the **quadratic fee structure**, it was clear that naive brute-force (e.g., a grid search) would be computationally impossible.
 
 Instead, we used **convex optimization** (`cvxpy`) to solve for the **optimal portfolio allocation**, maximizing expected returns while minimizing fee penalties.
-# TODO ADD IMAGE OF THE IPYNB TRACE
+![](images/goldberg_optimal.png) 
 
 We also decided to **tone down** the allocation weights slightly for higher-risk products to **mitigate the chance of getting burned** if our return estimates were wrong.
 
