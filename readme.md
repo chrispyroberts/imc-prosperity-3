@@ -185,10 +185,7 @@ Our backtesting PNL curve was a straight line on most days, indicating we had fo
 
 A few other things we considered for algo trading this round:
 
-- We analyzed how much we were losing in long voucher positions due to theta decay. Chris found that the vouchers had a maximum annualized theta decay of 800 seashells, meaning that holding a voucher for a year — assuming no changes to the underlying or voucher structure — would result in an 800 seashell loss. He estimated that if we were fully long 200 vouchers, the daily loss due to theta would be approximately 430 seashells:   
-  $$
-  \frac{800\ \text{seashells per year}}{365\ \text{days per year}} \times 1\ \text{day} \times 200\ \text{vouchers} \approx 430\ \text{seashells per day}
-  $$ This loss was negligible compared to the 80k we were making in backtests.
+- We analyzed how much we were losing in long voucher positions due to theta decay. Chris found that the vouchers had a maximum annualized theta decay of 800 seashells, meaning that holding a voucher for a year — assuming no changes to the underlying or voucher structure — would result in an 800 seashell loss. He estimated that if we were fully long 200 vouchers, the daily loss due to theta would be approximately 430 seashells: $$\frac{800\ \text{seashells per year}}{365\ \text{days per year}} \times 1\ \text{day} \times 200\ \text{vouchers} \approx 430\ \text{seashells per day}$$ This loss was negligible compared to the 80k we were making in backtests.
   
 - Since we could hold up to 400 Volcanic Rocks and 200 of any voucher, if we went long two different vouchers, we could at best fully hedge two of them assuming each had a delta of 1. To keep things manageable and avoid messy edge cases, we capped all voucher positions at 80. This guaranteed that we could always fully hedge, greatly simplifying our delta hedging logic and making the delta-neutral strategy easy to implement. There was probably a better way to optimize this, but given the time constraints of the challenge, we felt this was a favorable trade-off.
 
@@ -259,11 +256,7 @@ This round introduced a new product called Magnificent Macrons. Magnificent Macr
 
 While Macron prices were strongly correlated with `sugarPrice` and `sunlightIndex`, we decided to completely ignore these factors, since simply arbitraging across islands was far more profitable than trying to predict Macron price movements using a model.
 
-- Because import tariffs were negative, we were effectively paid to sell on the local island and convert on the Pristine Island. To calculate the break-even price for selling a Macron, we used the formula:
-
-  $$
-  \text{sell\_local\_break\_even\_price} = \text{conversion\_ask} + \text{import\_tariff} + \text{transport\_fee}
-  $$
+- Because import tariffs were negative, we were effectively paid to sell on the local island and convert on the Pristine Island. To calculate the break-even price for selling a Macron, we used the formula: $$\text{sell local break even price} = \text{conversion ask} + \text{import tariff} + \text{transport fee}$$
 
 - We also noticed there was a bot aggressively taking orders on the local island near the mid-price of the Pristine Island. We used this to our advantage by placing sell orders near the mid-price (if it was above our break-even price) and immediately converting them after they filled. We would pocket the difference between our sell price and the break-even price, multiplied by 10 (since we could convert 10 Macrons at a time).
 
