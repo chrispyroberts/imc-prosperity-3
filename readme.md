@@ -55,13 +55,9 @@ Round 1 introduced three new products: Rainforest Resin, Kelp, and Squid Ink —
 
 <h3>Manual</h3>
   
-This manual was pretty simple, it was a currency exchange problem were it was possible to exchange currencies in a way to profit of of it.
+This manual was pretty simple, it was a currency exchange problem were it was possible to exchange currencies in a way to profit of of it. All we had to do was a breadth first search across all possible currency conversions.
 
 See [Leetcode 3387. Maximize Amount After Two Days of Conversions](https://leetcode.com/problems/maximize-amount-after-two-days-of-conversions/description/) 😂.
-
-Seriously though, this was a relativley trivial manual and all we had to do was a breadth first search across all possible currency conversions.
-
-See [Leetcode 3387. Maximize Amount After Two Days of Conversions](https://leetcode.com/problems/maximize-amount-after-two-days-of-conversions/description/) 
 
 <h3>Results and Post-Round Analysis</h3>
 
