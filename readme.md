@@ -191,11 +191,9 @@ A few other things we considered for algo trading this round:
 - Since we could hold up to 400 Volcanic Rocks and 200 of any voucher, if we went long two different vouchers, we could at best fully hedge two of them assuming each had a delta of 1. To keep things manageable and avoid messy edge cases, we capped all voucher positions at 80. This guaranteed that we could always fully hedge, greatly simplifying our delta hedging logic and making the delta-neutral strategy easy to implement. There was probably a better way to optimize this, but given the time constraints of the challenge, we felt this was a favorable trade-off.
 
 <h3>Manual</h3>
-In this round, we had to place **two bids** to acquire **Sea Turtles' Flippers**. Each turtle accepted the **lowest bid above their reserve price**, where reserves were **uniformly distributed** between **160–200** and **250–320**.
+In this round, we had to place two bids to acquire Sea Turtles' Flippers. Each turtle accepted the lowest bid above their reserve price, where reserves were *uniformly distributed between 160–200 and **250–320**.
 
-For the second bid, a penalty applied if your offer was below the average of all second bids, scaling your profit by:
-
-$$p = \left(\frac{320 – \text{average bid}}{320 – \text{your bid}}\right)^3$$
+For the second bid, a penalty applied if your offer was below the average of all second bids, scaling your profit by: $p = \left(\frac{320 – \text{average bid}}{320 – \text{your bid}}\right)^3$
 
 All acquired Flippers could later be sold for 320 SeaShells each.
 
