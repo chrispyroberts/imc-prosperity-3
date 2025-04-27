@@ -69,7 +69,7 @@ See [Leetcode 3387. Maximize Amount After Two Days of Conversions](https://leetc
 
 First-round results were controversial. It became clear the website’s "sample data" was actually the first 1000 timestamps of live day 1 data, allowing teams to hardcode trades. Combined with Squid Ink spiking against our market making position, **we initially finished 771st.**
 
-**After the round was re-run (hardcoding was ruled cheating), we shot up to 9th place** with a total PNL of 107,237 seashells (43,243 algo + 44,340 manual). We got lucky on the re-run — Squid Ink spiked in our favor instead of against us. The top 3 teams still finished ~100k seashells ahead of everyone else, but we were within a few thousand seashells of 4th.
+**After the round was re-run (hardcoding was ruled cheating), we shot up to 9th place** with a total PNL of 107,237 seashells. We got lucky on the re-run — Squid Ink spiked in our favor instead of against us. The top 3 teams still finished ~100k seashells ahead of everyone else, but we were within a few thousand seashells of 4th.
 
 Afterward, we decided Squid Ink was too volatile for full-size market making. We adapted by only allocating 10% of our position to it, cutting PNL by about 50%, but added a spike detection system:
 
