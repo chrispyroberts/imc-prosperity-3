@@ -21,7 +21,6 @@ Or pass it directly when running:
 
 import os
 import sys
-import json
 from typing import List, Dict, Optional
 
 try:
@@ -60,7 +59,7 @@ def fetch_user_repos(token: str, affiliation: str = 'collaborator') -> List[Dict
         List of repository dictionaries
     """
     headers = {
-        'Authorization': f'token {token}',
+        'Authorization': f'Bearer {token}',
         'Accept': 'application/vnd.github.v3+json'
     }
     
@@ -112,8 +111,6 @@ def display_repos(repos: List[Dict], affiliation: str):
     print(f"{'='*80}\n")
     
     for i, repo in enumerate(repos, 1):
-        owner = repo['owner']['login']
-        name = repo['name']
         full_name = repo['full_name']
         private = "🔒 Private" if repo['private'] else "🌐 Public"
         description = repo.get('description', 'No description')

@@ -97,11 +97,11 @@ You can use the GitHub API with curl or any HTTP client:
 export GITHUB_TOKEN=your_token_here
 
 # Get repositories where you are a collaborator
-curl -H "Authorization: token $GITHUB_TOKEN" \
+curl -H "Authorization: Bearer $GITHUB_TOKEN" \
      "https://api.github.com/user/repos?affiliation=collaborator&per_page=100"
 
 # Get all repositories (owned, collaborator, organization)
-curl -H "Authorization: token $GITHUB_TOKEN" \
+curl -H "Authorization: Bearer $GITHUB_TOKEN" \
      "https://api.github.com/user/repos?affiliation=owner,collaborator,organization_member&per_page=100"
 ```
 
