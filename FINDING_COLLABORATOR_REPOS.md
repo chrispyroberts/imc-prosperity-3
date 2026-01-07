@@ -9,7 +9,12 @@ We've created a Python script that uses the GitHub API to list all repositories 
 ### Prerequisites
 
 1. Install Python 3.6 or higher
-2. Install the `requests` library:
+2. Install dependencies from requirements.txt:
+   ```bash
+   pip install -r requirements.txt
+   ```
+   
+   Or install the `requests` library directly:
    ```bash
    pip install requests
    ```

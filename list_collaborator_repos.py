@@ -101,7 +101,21 @@ def fetch_user_repos(token: str, affiliation: str = 'collaborator') -> List[Dict
 
 
 def display_repos(repos: List[Dict], affiliation: str):
-    """Display repository information in a formatted way."""
+    """
+    Display repository information in a formatted way.
+    
+    Args:
+        repos: List of repository dictionaries from GitHub API
+        affiliation: Type of affiliation (e.g., 'collaborator', 'owner')
+    
+    Prints formatted output including:
+        - Repository full name
+        - Privacy status (public/private)
+        - Description
+        - URL
+        - Last update date
+        - User permissions
+    """
     if not repos:
         print(f"No repositories found where you are a {affiliation}.")
         return
@@ -140,7 +154,18 @@ def display_repos(repos: List[Dict], affiliation: str):
 
 
 def main():
-    """Main function to run the script."""
+    """
+    Main function to run the GitHub repository finder.
+    
+    Provides an interactive menu system allowing users to:
+    1. View repositories where they are a collaborator (not owner)
+    2. View all repositories (owned, collaborator, organization)
+    3. View only repositories they own
+    4. View only organization repositories
+    
+    Requires GITHUB_TOKEN environment variable to be set.
+    Fetches data using GitHub API and displays formatted results.
+    """
     print("GitHub Collaborator Repository Finder")
     print("=" * 80)
     print()
