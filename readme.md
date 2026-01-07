@@ -40,6 +40,12 @@ It started out organized... then the 4 a.m. coding sessions happened. Good luck!
 
 <br>
 
+## 🔧 Utilities
+
+Looking to see what repositories you're a collaborator on? Check out our [Finding Collaborator Repositories Guide](FINDING_COLLABORATOR_REPOS.md) which includes a Python script and multiple methods to discover your GitHub collaborations.
+
+<br>
+
 ## 🧠 What you're probably here for
 
 Here’s a breakdown of our algorithmic and manual strategies. Our overall approach focused on market-neutral plays (straight-line PNL, no crazy bets).
